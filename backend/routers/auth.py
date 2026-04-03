@@ -1,18 +1,17 @@
 import os
 from http import HTTPStatus
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
-from itsdangerous import BadSignature, SignatureExpired
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from database import get_db
+from deps import get_current_user
 from models.user import User
 from schemas.auth import SigninRequest, SignupRequest, UserResponse
 from services.auth_service import (
     SESSION_COOKIE_MAX_AGE,
     create_session_token,
-    decode_session_token,
     hash_password,
     verify_password,
 )
@@ -70,17 +69,5 @@ def signout(response: Response) -> dict:
 
 
 @router.get("/me", response_model=UserResponse)
-def me(
-    session: str | None = Cookie(default=None),
-    db: Session = Depends(get_db),
-) -> User:
-    if not session:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        user_id = decode_session_token(session)
-    except (BadSignature, SignatureExpired):
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    user = db.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+def me(user: User = Depends(get_current_user)) -> User:
     return user

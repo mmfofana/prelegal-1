@@ -3,16 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { ChatPanel } from "@/components/ChatPanel";
 import { DownloadButton } from "@/components/DownloadButton";
 import { NdaForm } from "@/components/NdaForm";
 import { NdaPreview } from "@/components/NdaPreview";
 import { NdaFormData, defaultNdaFormData } from "@/types/nda";
 import { useAuth, signout } from "@/lib/auth";
 
+type ActiveTab = "chat" | "form";
+
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState<NdaFormData>(defaultNdaFormData());
+  const [activeTab, setActiveTab] = useState<ActiveTab>("chat");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -53,12 +57,42 @@ export default function Home() {
 
       {/* Two-column layout */}
       <div className="max-w-7xl mx-auto flex gap-0 h-[calc(100vh-72px)]">
-        {/* Left — Form */}
-        <aside className="w-[420px] min-w-[340px] bg-white border-r border-gray-200 overflow-y-auto p-6">
-          <h2 className="text-[#032147] font-semibold text-lg mb-4">
-            Fill in the details
-          </h2>
-          <NdaForm data={formData} onChange={setFormData} />
+        {/* Left — Chat or Form */}
+        <aside className="w-[420px] min-w-[340px] bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+          {/* Tab toggle */}
+          <div className="flex border-b border-gray-200 shrink-0">
+            <button
+              onClick={() => setActiveTab("chat")}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                activeTab === "chat"
+                  ? "text-[#032147] border-b-2 border-[#209dd7]"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              Chat
+            </button>
+            <button
+              onClick={() => setActiveTab("form")}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                activeTab === "form"
+                  ? "text-[#032147] border-b-2 border-[#209dd7]"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              Form
+            </button>
+          </div>
+
+          {/* Panel content */}
+          {activeTab === "chat" ? (
+            <div className="flex-1 min-h-0 flex flex-col p-6">
+              <ChatPanel data={formData} onChange={setFormData} />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto p-6">
+              <NdaForm data={formData} onChange={setFormData} />
+            </div>
+          )}
         </aside>
 
         {/* Right — Live Preview */}
