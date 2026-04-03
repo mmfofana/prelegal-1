@@ -1,10 +1,10 @@
 """Generic document schemas for multi-document-type support."""
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class Party(BaseModel):
@@ -84,3 +84,19 @@ class DocumentChatRequest(BaseModel):
 class DocumentChatResponse(BaseModel):
     reply: str
     fields: PartialDocumentFields
+
+
+# ── Saved document schemas ───────────────────────────────────────────────────
+
+class SavedDocumentSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    document_type: str
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class SavedDocumentDetail(SavedDocumentSummary):
+    fields: dict

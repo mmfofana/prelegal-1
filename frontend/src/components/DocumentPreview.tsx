@@ -40,6 +40,14 @@ export function DocumentPreview({ data, docDef }: DocumentPreviewProps) {
 
   return (
     <div className="font-serif text-[13px] text-gray-800 leading-relaxed space-y-5">
+      {/* Draft disclaimer */}
+      <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 not-italic font-sans">
+        <span className="shrink-0 mt-0.5">⚠</span>
+        <p>
+          <strong>Draft preview only.</strong> This document should be considered a draft and is subject to legal review. Consult qualified counsel before use.
+        </p>
+      </div>
+
       {/* Title */}
       <div>
         <h1 className="text-xl font-bold text-[#032147] mb-1">{docDef.displayName}</h1>

@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { CATALOG_ORDER } from "@/lib/document-registry";
 import { DocumentEditor } from "./DocumentEditor";
 
@@ -11,5 +13,9 @@ export default async function DocumentPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  return <DocumentEditor slug={slug} />;
+  return (
+    <Suspense fallback={null}>
+      <DocumentEditor slug={slug} />
+    </Suspense>
+  );
 }

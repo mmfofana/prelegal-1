@@ -23,3 +23,14 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     return user
+
+
+def get_optional_user(
+    session: str | None = Cookie(default=None),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Like get_current_user but returns None instead of raising 401."""
+    try:
+        return get_current_user(session=session, db=db)
+    except HTTPException:
+        return None

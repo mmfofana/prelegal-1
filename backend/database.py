@@ -24,7 +24,7 @@ class Base(DeclarativeBase):
 
 
 def init_db() -> None:
-    from models import user  # noqa: F401 — ensures model is registered with Base
+    from models import user, saved_document  # noqa: F401 — ensures models are registered with Base
 
     Base.metadata.create_all(bind=engine)
 

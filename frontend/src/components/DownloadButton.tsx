@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { generatePdf } from "@/lib/api";
 import { DocumentFormData } from "@/types/document";
@@ -9,11 +9,19 @@ import { DocumentTypeDef } from "@/lib/document-registry";
 interface DownloadButtonProps {
   data: DocumentFormData;
   docDef: DocumentTypeDef;
+  onDownloaded?: () => void;
 }
 
-export function DownloadButton({ data, docDef }: DownloadButtonProps) {
+export function DownloadButton({ data, docDef, onDownloaded }: DownloadButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!saved) return;
+    const timer = setTimeout(() => setSaved(false), 3000);
+    return () => clearTimeout(timer);
+  }, [saved]);
 
   const handleDownload = async () => {
     setLoading(true);
@@ -28,6 +36,8 @@ export function DownloadButton({ data, docDef }: DownloadButtonProps) {
       anchor.click();
       document.body.removeChild(anchor);
       setTimeout(() => URL.revokeObjectURL(url), 100);
+      setSaved(true);
+      onDownloaded?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "PDF generation failed";
       setError(message);
@@ -37,7 +47,7 @@ export function DownloadButton({ data, docDef }: DownloadButtonProps) {
   };
 
   return (
-    <div>
+    <div className="flex flex-col items-end gap-1">
       <button
         onClick={handleDownload}
         disabled={loading}
@@ -45,7 +55,10 @@ export function DownloadButton({ data, docDef }: DownloadButtonProps) {
       >
         {loading ? "Generating PDF…" : "Download PDF"}
       </button>
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {saved && (
+        <p className="text-xs text-green-400 animate-pulse">Saved to My Documents ✓</p>
+      )}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
 }

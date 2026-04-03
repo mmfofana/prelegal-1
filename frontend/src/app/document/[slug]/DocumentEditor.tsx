@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { ChatPanel } from "@/components/ChatPanel";
 import { DocumentForm } from "@/components/DocumentForm";
 import { DocumentPreview } from "@/components/DocumentPreview";
 import { DownloadButton } from "@/components/DownloadButton";
+import { Header } from "@/components/Header";
 import { CATALOG_ORDER, DOCUMENT_REGISTRY } from "@/lib/document-registry";
-import { useAuth, signout } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
+import { fetchDocument } from "@/lib/documents";
 import { DocumentFormData, DOCUMENT_DEFAULTS, defaultDocumentFormData } from "@/types/document";
 
 type ActiveTab = "chat" | "form";
@@ -16,6 +18,7 @@ type ActiveTab = "chat" | "form";
 export function DocumentEditor({ slug }: { slug: string }) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const docDef = DOCUMENT_REGISTRY[slug];
 
@@ -23,6 +26,7 @@ export function DocumentEditor({ slug }: { slug: string }) {
     defaultDocumentFormData(slug, DOCUMENT_DEFAULTS[slug] ?? {}),
   );
   const [activeTab, setActiveTab] = useState<ActiveTab>("chat");
+  const hydrated = useRef(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,7 +38,25 @@ export function DocumentEditor({ slug }: { slug: string }) {
   useEffect(() => {
     setFormData(defaultDocumentFormData(slug, DOCUMENT_DEFAULTS[slug] ?? {}));
     setActiveTab("chat");
+    hydrated.current = false;
   }, [slug]);
+
+  // Load saved document from ?from= query param (once on mount per slug)
+  useEffect(() => {
+    if (hydrated.current || authLoading || !user) return;
+    const fromId = searchParams.get("from");
+    if (!fromId) return;
+    hydrated.current = true;
+    fetchDocument(Number(fromId))
+      .then((doc) => {
+        setFormData(doc.fields);
+        // Clear the ?from= param so refreshing doesn't re-hydrate over edits
+        router.replace(`/document/${slug}`);
+      })
+      .catch(() => {
+        router.replace(`/document/${slug}`);
+      });
+  }, [authLoading, user, searchParams, slug, router]);
 
   if (authLoading || !user) return null;
 
@@ -55,51 +77,30 @@ export function DocumentEditor({ slug }: { slug: string }) {
     );
   }
 
-  async function handleSignout() {
-    await signout();
-    router.push("/login");
-  }
+  const docTypeDropdown = (
+    <select
+      value={slug}
+      onChange={(e) => router.push(`/document/${e.target.value}`)}
+      className="bg-white/10 border border-white/20 text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#209dd7] hover:bg-white/20 transition-colors"
+    >
+      {CATALOG_ORDER.filter((s) => s !== "mutual-nda-coverpage").map((s) => {
+        const def = DOCUMENT_REGISTRY[s];
+        return (
+          <option key={s} value={s} className="bg-[#032147] text-white">
+            {def.displayName}
+          </option>
+        );
+      })}
+    </select>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-[#032147] text-white px-6 py-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/")}
-              className="text-xl font-bold tracking-tight hover:opacity-80 transition-opacity"
-            >
-              <span className="text-[#ecad0a]">Pre</span>legal
-            </button>
-            {/* Document type dropdown */}
-            <select
-              value={slug}
-              onChange={(e) => router.push(`/document/${e.target.value}`)}
-              className="bg-white/10 border border-white/20 text-white text-sm rounded px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#209dd7] hover:bg-white/20 transition-colors"
-            >
-              {CATALOG_ORDER.filter((s) => s !== "mutual-nda-coverpage").map((s) => {
-                const def = DOCUMENT_REGISTRY[s];
-                return (
-                  <option key={s} value={s} className="bg-[#032147] text-white">
-                    {def.displayName}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-300">{user.email}</span>
-            <button
-              onClick={handleSignout}
-              className="text-sm text-gray-300 hover:text-white underline"
-            >
-              Sign out
-            </button>
-            <DownloadButton data={formData} docDef={docDef} />
-          </div>
-        </div>
-      </header>
+      <Header
+        user={user}
+        centerSlot={docTypeDropdown}
+        rightSlot={<DownloadButton data={formData} docDef={docDef} />}
+      />
 
       {/* Two-column layout */}
       <div className="max-w-7xl mx-auto flex gap-0 h-[calc(100vh-72px)]">

@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import { Header } from "@/components/Header";
 import { CATALOG_ORDER, DOCUMENT_REGISTRY } from "@/lib/document-registry";
-import { useAuth, signout } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -18,35 +19,10 @@ export default function Home() {
 
   if (loading || !user) return null;
 
-  async function handleSignout() {
-    await signout();
-    router.push("/login");
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-[#032147] text-white px-6 py-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-[#ecad0a]">Pre</span>legal
-            </h1>
-            <p className="text-sm text-gray-300">Legal Document Creator</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-300">{user.email}</span>
-            <button
-              onClick={handleSignout}
-              className="text-sm text-gray-300 hover:text-white underline"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header user={user} />
 
-      {/* Catalog */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="mb-10 text-center">
           <h2 className="text-3xl font-bold text-[#032147] mb-3">
@@ -62,7 +38,6 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {CATALOG_ORDER.map((slug) => {
             const def = DOCUMENT_REGISTRY[slug];
-            // Deduplicate: mutual-nda-coverpage points to same editor as mutual-nda
             const href = slug === "mutual-nda-coverpage" ? "/document/mutual-nda" : `/document/${slug}`;
             return (
               <button

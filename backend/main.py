@@ -17,6 +17,7 @@ from database import init_db
 from routers import pdf
 from routers import auth as auth_router
 from routers import chat as chat_router
+from routers import documents as documents_router
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -44,6 +45,7 @@ if _cors_origins:
 app.include_router(pdf.router, prefix="/api")
 app.include_router(auth_router.router, prefix="/api/auth")
 app.include_router(chat_router.router, prefix="/api")
+app.include_router(documents_router.router, prefix="/api")
 
 
 @app.get("/api/health")

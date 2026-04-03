@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
+import { AuthBrandPanel } from "@/components/AuthBrandPanel";
 import { signup } from "@/lib/auth";
 
 export default function SignupPage() {
@@ -32,16 +33,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-[#032147] text-white px-6 py-4 shadow-md">
-        <h1 className="text-xl font-bold tracking-tight">
-          <span className="text-[#ecad0a]">Pre</span>legal
-        </h1>
-      </header>
+    <div className="min-h-screen flex">
+      <AuthBrandPanel />
 
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 w-full max-w-sm">
-          <h2 className="text-xl font-bold text-[#032147] mb-6">Create account</h2>
+      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 w-full max-w-sm">
+          <h2 className="text-2xl font-bold text-[#032147] mb-1">Create your account</h2>
+          <p className="text-sm text-gray-500 mb-6">Start drafting legal documents in minutes</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -54,7 +52,7 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-400"
               />
             </div>
 
@@ -69,7 +67,7 @@ export default function SignupPage() {
                 required
                 minLength={8}
                 placeholder="Min. 8 characters"
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-400"
               />
             </div>
 
@@ -80,13 +78,13 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#753991] text-white rounded px-4 py-2 text-sm font-semibold hover:bg-[#5e2d73] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#753991] text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-[#5e2d73] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating account…" : "Create account"}
             </button>
           </form>
 
-          <p className="mt-4 text-sm text-center text-[#888888]">
+          <p className="mt-5 text-sm text-center text-[#888888]">
             Already have an account?{" "}
             <Link href="/login" className="text-[#209dd7] hover:underline font-medium">
               Sign in

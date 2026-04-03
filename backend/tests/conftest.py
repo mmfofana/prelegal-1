@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from database import Base, engine, init_db
 import models.user  # noqa: F401 — registers User with Base.metadata
+import models.saved_document  # noqa: F401 — registers SavedDocument with Base.metadata
 from main import app
 
 
