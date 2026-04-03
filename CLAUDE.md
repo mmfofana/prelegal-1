@@ -45,7 +45,7 @@ scripts/stop-windows.ps1
 ```
 Backend available at http://localhost:8000
 
-> **Local dev note:** Port 8000 may conflict with other services. Run backend on port 8001 (`uv run uvicorn main:app --reload --port 8001`) and frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`. Docker is not yet set up (planned for PL-4).
+> **Local dev note:** Port 8000 may conflict with other services. Run backend on port 8001 (`uv run uvicorn main:app --reload --port 8001`) and frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`. Set `CORS_ORIGINS=http://localhost:3000` in `.env` for local dev.
 
 ## Color Scheme
 - Accent Yellow: `#ecad0a`
@@ -86,9 +86,24 @@ Open http://localhost:3000
 - Placeholder text darkened to `gray-500` for legibility
 - Added `suppressHydrationWarning` to `<body>` to suppress Grammarly extension hydration error
 
+### Completed (PL-4)
+- Docker: single-container build (`Dockerfile` + `docker-compose.yml`); FastAPI on port 8000 serves both API and static frontend
+- SQLite database at `/app/data/prelegal.db` (Docker volume `prelegal-data` for persistence)
+- User auth: HTTP-only session cookies via `itsdangerous`; bcrypt password hashing
+- Endpoints: `POST /api/auth/signup`, `POST /api/auth/signin`, `POST /api/auth/signout`, `GET /api/auth/me`
+- Frontend: `/login` and `/signup` pages; NDA page gated behind auth (client-side redirect)
+- Next.js static export (`output: 'export'`) served by FastAPI; dev proxy still works via conditional `rewrites`
+- Start/stop scripts for Mac, Linux, and Windows in `scripts/`
+- 36 backend tests (100% pass rate); in-memory SQLite with `StaticPool` for test isolation
+
+### Running with Docker
+```bash
+scripts/start-mac.sh   # or start-linux.sh
+# Open http://localhost:8000
+scripts/stop-mac.sh
+```
+
 ### Not yet implemented
-- Docker container + start/stop scripts (planned for PL-4)
-- SQLite database / user authentication (planned for PL-4+)
 - AI chat interface (planned for PL-5+)
 - Support for document types other than Mutual NDA (planned for PL-6+)
 

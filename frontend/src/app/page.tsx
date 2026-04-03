@@ -1,14 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { DownloadButton } from "@/components/DownloadButton";
 import { NdaForm } from "@/components/NdaForm";
 import { NdaPreview } from "@/components/NdaPreview";
 import { NdaFormData, defaultNdaFormData } from "@/types/nda";
+import { useAuth, signout } from "@/lib/auth";
 
 export default function Home() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState<NdaFormData>(defaultNdaFormData());
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) return null;
+
+  async function handleSignout() {
+    await signout();
+    router.push("/login");
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,7 +38,16 @@ export default function Home() {
             </h1>
             <p className="text-sm text-gray-300">Mutual NDA Creator</p>
           </div>
-          <DownloadButton data={formData} />
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-300">{user.email}</span>
+            <button
+              onClick={handleSignout}
+              className="text-sm text-gray-300 hover:text-white underline"
+            >
+              Sign out
+            </button>
+            <DownloadButton data={formData} />
+          </div>
         </div>
       </header>
 
