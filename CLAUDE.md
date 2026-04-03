@@ -104,8 +104,17 @@ scripts/start-mac.sh   # or start-linux.sh
 scripts/stop-mac.sh
 ```
 
+### Completed (PL-5)
+- Left panel now has a **Chat | Form** tab toggle; both tabs share `formData` state and the live preview remains on the right
+- **Chat tab**: freeform AI conversation — user describes their NDA needs; AI (gpt-oss-120b via Cerebras/OpenRouter) extracts field values via `PartialNdaFields` structured outputs and updates the document incrementally
+- `POST /api/chat` (auth-gated): receives `{messages, current_fields}`, returns `{reply, fields}`; stateless — conversation history lives in React state and resets on page reload
+- `backend/deps.py`: shared `get_current_user` FastAPI dependency used by both auth and chat routers
+- `backend/schemas/chat.py`, `backend/services/chat_service.py`, `backend/routers/chat.py`: chat schema, LiteLLM service, and router
+- `frontend/src/lib/chat.ts`: `sendMessage()` + `mergeFields()` (nulls never overwrite existing values)
+- `frontend/src/components/ChatPanel.tsx`: message list, auto-scroll, Enter to send
+- 44 backend tests (100% pass rate)
+
 ### Not yet implemented
-- AI chat interface (planned for PL-5+)
 - Support for document types other than Mutual NDA (planned for PL-6+)
 
 ### GitHub
