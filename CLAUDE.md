@@ -59,5 +59,25 @@ Backend available at http://localhost:8000
 - `catalog.json` with name, description, and filename for each template
 - `templates/LICENSE.txt` with CC BY 4.0 attribution
 
+### Completed (PL-3)
+- Next.js frontend (`frontend/`) with two-column layout: form left, live preview right
+- FastAPI backend (`backend/`) with `POST /api/generate-pdf` and `GET /api/health`
+- All Mutual NDA cover page fields: Purpose, Effective Date, MNDA Term, Term of Confidentiality, Governing Law, Jurisdiction, Modifications, Party 1 & 2
+- PDF generated server-side via WeasyPrint + Jinja2 HTML template
+- Live preview updates instantly as user types
+- Download button saves `mutual-nda.pdf`
+- 22 backend tests (100% pass rate)
+- Dev: backend on port 8001, frontend on port 3000 with `/api/*` proxy
+
+### Running locally (without Docker)
+```bash
+# Terminal 1 — backend
+cd backend && uv run uvicorn main:app --reload --port 8001
+
+# Terminal 2 — frontend
+cd frontend && npm run dev
+```
+Open http://localhost:3000
+
 ### GitHub
 - Remote is `mmfofana/prelegal-1` (origin). Do not push to `ed-donner/prelegal`.
