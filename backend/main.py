@@ -2,6 +2,12 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+# Load .env from project root (parent of backend/) before any other imports
+# so env vars are available when modules like auth_service initialize.
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent / ".env")
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse

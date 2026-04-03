@@ -6,7 +6,7 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:////app/data/prelegal.db")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./prelegal.db")
 
 # StaticPool ensures all connections share the same in-memory SQLite database.
 # Required for testing; harmless for file-based SQLite.
