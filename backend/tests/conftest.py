@@ -1,7 +1,25 @@
+import os
+
+# Must be set before any app imports so database.py and auth_service.py pick them up
+os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+os.environ.setdefault("SESSION_SECRET", "test-secret-not-for-production")
+os.environ.setdefault("CORS_ORIGINS", "http://localhost:3000")
+
 import pytest
 from fastapi.testclient import TestClient
 
+from database import Base, engine, init_db
+import models.user  # noqa: F401 — registers User with Base.metadata
 from main import app
+
+
+@pytest.fixture(autouse=True)
+def reset_db():
+    """Re-create all tables before each test for a clean slate."""
+    Base.metadata.drop_all(bind=engine)
+    init_db()
+    yield
+    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture

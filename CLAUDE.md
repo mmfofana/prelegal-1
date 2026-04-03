@@ -27,8 +27,8 @@ There is an OPENROUTER_API_KEY in the .env file in the project root.
 The entire project should be packaged into a Docker container.  
 The backend should be in backend/ and be a uv project, using FastAPI.  
 The frontend should be in frontend/  
-The database should use SQLLite and be created from scratch each time the Docker container is brought up, allowing for a users table with sign up and sign in.  
-Consider statically building the frontend and serving it via FastAPI, if that will work.  
+The database uses SQLite with SQLAlchemy. In Docker it is stored at `/app/data/prelegal.db` on a named volume (`prelegal-data`) so it persists across restarts. In local dev it creates `backend/prelegal.db`.  
+The frontend is statically exported (`next build`) and served by FastAPI — single container, no nginx.  
 There should be scripts in scripts/ for:  
 ```bash
 # Mac
@@ -45,7 +45,7 @@ scripts/stop-windows.ps1
 ```
 Backend available at http://localhost:8000
 
-> **Local dev note:** Port 8000 may conflict with other services. Run backend on port 8001 (`uv run uvicorn main:app --reload --port 8001`) and frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`. Docker is not yet set up (planned for PL-4).
+> **Local dev note:** Port 8000 may conflict with other services. Run backend on port 8001 (`uv run uvicorn main:app --reload --port 8001`) and frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`. Set `CORS_ORIGINS=http://localhost:3000` in `.env` for local dev.
 
 ## Color Scheme
 - Accent Yellow: `#ecad0a`
@@ -86,9 +86,25 @@ Open http://localhost:3000
 - Placeholder text darkened to `gray-500` for legibility
 - Added `suppressHydrationWarning` to `<body>` to suppress Grammarly extension hydration error
 
+### Completed (PL-4)
+- Docker: single-container build (`Dockerfile` + `docker-compose.yml`); FastAPI on port 8000 serves both API and static frontend
+- SQLite via SQLAlchemy: `backend/database.py` with `init_db()` on startup; Docker volume `prelegal-data` for persistence
+- User auth: HTTP-only session cookies (`itsdangerous` + bcrypt); `SESSION_SECRET` loaded from `.env`
+- Auth endpoints: `POST /api/auth/signup`, `POST /api/auth/signin`, `POST /api/auth/signout`, `GET /api/auth/me`
+- Frontend `/login` and `/signup` pages; NDA page gated behind `useAuth()` hook (redirects to `/login`)
+- Next.js `output: 'export'` static build served by FastAPI; dev proxy still works via conditional `rewrites`
+- `main.py` loads `.env` from project root via `load_dotenv()` — required for `SESSION_SECRET` and `CORS_ORIGINS`
+- Start/stop scripts for Mac, Linux, and Windows in `scripts/`
+- 36 backend tests (100% pass rate); in-memory SQLite with `StaticPool` for test isolation
+
+### Running with Docker
+```bash
+scripts/start-mac.sh   # or start-linux.sh
+# Open http://localhost:8000
+scripts/stop-mac.sh
+```
+
 ### Not yet implemented
-- Docker container + start/stop scripts (planned for PL-4)
-- SQLite database / user authentication (planned for PL-4+)
 - AI chat interface (planned for PL-5+)
 - Support for document types other than Mutual NDA (planned for PL-6+)
 
