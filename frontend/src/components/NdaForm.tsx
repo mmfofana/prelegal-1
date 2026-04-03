@@ -32,7 +32,7 @@ function PartyFields({
             value={party.company}
             onChange={(e) => update("company", e.target.value)}
             placeholder="Acme Corp."
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
           />
         </div>
         <div>
@@ -44,7 +44,7 @@ function PartyFields({
             value={party.name}
             onChange={(e) => update("name", e.target.value)}
             placeholder="Jane Smith"
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
           />
         </div>
         <div>
@@ -56,7 +56,7 @@ function PartyFields({
             value={party.title}
             onChange={(e) => update("title", e.target.value)}
             placeholder="CEO"
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
           />
         </div>
         <div>
@@ -68,7 +68,7 @@ function PartyFields({
             value={party.address}
             onChange={(e) => update("address", e.target.value)}
             placeholder="jane@acme.com"
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
           />
         </div>
       </div>
@@ -94,7 +94,7 @@ export function NdaForm({ data, onChange }: NdaFormProps) {
           rows={3}
           value={data.purpose}
           onChange={(e) => update("purpose", e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
         />
       </div>
 
@@ -237,7 +237,7 @@ export function NdaForm({ data, onChange }: NdaFormProps) {
           value={data.governing_law}
           onChange={(e) => update("governing_law", e.target.value)}
           placeholder="e.g. Delaware"
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
         />
       </div>
 
@@ -251,7 +251,7 @@ export function NdaForm({ data, onChange }: NdaFormProps) {
           value={data.jurisdiction}
           onChange={(e) => update("jurisdiction", e.target.value)}
           placeholder="e.g. courts located in New Castle, DE"
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
         />
       </div>
 
@@ -265,7 +265,7 @@ export function NdaForm({ data, onChange }: NdaFormProps) {
           value={data.modifications}
           onChange={(e) => update("modifications", e.target.value)}
           placeholder="List any modifications to the Standard Terms, or leave blank for none."
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7]"
+          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500"
         />
       </div>
 
