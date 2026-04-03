@@ -8,8 +8,6 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-The current implementation supports all 11 document types via AI chat with full user authentication and document persistence.
-
 ## Development process
 
 When instructed to build a feature:
@@ -47,8 +45,6 @@ scripts/stop-windows.ps1
 ```
 Backend available at http://localhost:8000
 
-> **Note:** Port 8000 may conflict with other local services. When running without Docker, use `uv run uvicorn main:app --reload --port 8001` and start the frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`.
-
 ## Color Scheme
 - Accent Yellow: `#ecad0a`
 - Blue Primary: `#209dd7`
@@ -58,69 +54,10 @@ Backend available at http://localhost:8000
 
 ## Implementation Status
 
-### Completed (PL-4)
-- Docker multi-stage build (Node frontend + Python backend)
-- FastAPI backend with SQLite (fresh DB each container start)
-- Next.js static export served by FastAPI at localhost:8000
-- Auth routes: POST /api/auth/signup, POST /api/auth/signin, POST /api/auth/signout, GET /api/auth/me
-- Start/stop scripts for Mac, Linux, Windows
-- Mutual NDA form with live preview and PDF download
-
-### Completed (PL-5)
-- AI chat interface replaces manual form for NDA creation
-- Uses LiteLLM via OpenRouter with Cerebras inference (gpt-oss-120b model)
-- Structured outputs for reliable field extraction from conversation
-- Live preview updates as AI extracts fields from chat
-- AI greets user, asks questions conversationally, and confirms when complete
-- Download button appears when all required fields are gathered
-
-### Completed (PL-6)
-- Support for all 11 document types from catalog.json
-- AI detects document type from user requests and routes accordingly
-- Dedicated preview/PDF components for Mutual NDA, Cloud Service Agreement, Pilot Agreement
-- Generic preview/PDF components for remaining document types (Design Partner, SLA, Professional Services, Partnership, Software License, DPA, BAA, AI Addendum)
-- Auto-focus chat input after sending messages
-- AI always asks follow-on questions when more information is needed
-
-### Completed (PL-7)
-- Functional user authentication with JWT tokens in HttpOnly cookies
-- User signup and signin with email/password (bcrypt password hashing)
-- Document persistence - users can save documents to their account
-- My Documents modal to view, load, and delete saved documents
-- User menu with sign out functionality
-- New Document button to start fresh
-- Auth context for managing user state across the app
-- Protected document save/load endpoints
-
-### Completed (PL-4 follow-up)
-- Pytest suite: 36 backend tests covering security, AuthService, auth routes, dependencies, health (82% coverage)
-- Jest tests: AuthModal and AuthContext frontend components (94 total frontend tests)
-- pytest configured in `pyproject.toml` with coverage settings; dev deps in `[dependency-groups]`
-- `.env` documents both `OPENROUTER_API_KEY` and `SECRET_KEY`
+### Completed (PL-2)
+- 12 CommonPaper markdown legal agreement templates in `templates/`
+- `catalog.json` with name, description, and filename for each template
+- `templates/LICENSE.txt` with CC BY 4.0 attribution
 
 ### GitHub
 - Remote is `mmfofana/prelegal-1` (origin). Do not push to `ed-donner/prelegal`.
-
-### Running locally (without Docker)
-```bash
-# Terminal 1 - backend on port 8001
-cd backend && uv run uvicorn main:app --reload --port 8001
-
-# Terminal 2 - frontend dev server on port 3000
-cd frontend && npm run dev
-```
-Open http://localhost:3000
-
-### Current API Endpoints
-- `POST /api/auth/signup` - Create new user account
-- `POST /api/auth/signin` - Sign in and receive JWT cookie
-- `POST /api/auth/signout` - Clear auth cookie
-- `GET /api/auth/me` - Get current user info
-- `GET /api/documents` - List user's saved documents (auth required)
-- `POST /api/documents` - Save new document (auth required)
-- `GET /api/documents/{id}` - Get specific document (auth required)
-- `PUT /api/documents/{id}` - Update document (auth required)
-- `DELETE /api/documents/{id}` - Delete document (auth required)
-- `GET /api/chat/greeting` - Get AI greeting
-- `POST /api/chat/message` - Send chat message and get AI response
-- `GET /api/health` - Health check
