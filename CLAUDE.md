@@ -47,6 +47,8 @@ scripts/stop-windows.ps1
 ```
 Backend available at http://localhost:8000
 
+> **Note:** Port 8000 may conflict with other local services. When running without Docker, use `uv run uvicorn main:app --reload --port 8001` and start the frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`.
+
 ## Color Scheme
 - Accent Yellow: `#ecad0a`
 - Blue Primary: `#209dd7`
@@ -89,6 +91,25 @@ Backend available at http://localhost:8000
 - New Document button to start fresh
 - Auth context for managing user state across the app
 - Protected document save/load endpoints
+
+### Completed (PL-4 follow-up)
+- Pytest suite: 36 backend tests covering security, AuthService, auth routes, dependencies, health (82% coverage)
+- Jest tests: AuthModal and AuthContext frontend components (94 total frontend tests)
+- pytest configured in `pyproject.toml` with coverage settings; dev deps in `[dependency-groups]`
+- `.env` documents both `OPENROUTER_API_KEY` and `SECRET_KEY`
+
+### GitHub
+- Remote is `mmfofana/prelegal-1` (origin). Do not push to `ed-donner/prelegal`.
+
+### Running locally (without Docker)
+```bash
+# Terminal 1 - backend on port 8001
+cd backend && uv run uvicorn main:app --reload --port 8001
+
+# Terminal 2 - frontend dev server on port 3000
+cd frontend && npm run dev
+```
+Open http://localhost:3000
 
 ### Current API Endpoints
 - `POST /api/auth/signup` - Create new user account
