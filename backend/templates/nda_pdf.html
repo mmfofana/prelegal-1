@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2.5cm;
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #888;
+    }
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5pt;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  h1 {
+    color: #032147;
+    font-size: 18pt;
+    margin-bottom: 4pt;
+  }
+
+  h2 {
+    color: #032147;
+    font-size: 13pt;
+    margin-top: 20pt;
+    margin-bottom: 8pt;
+    border-bottom: 2px solid #209dd7;
+    padding-bottom: 4pt;
+  }
+
+  h3 {
+    color: #209dd7;
+    font-size: 10.5pt;
+    margin-top: 14pt;
+    margin-bottom: 2pt;
+  }
+
+  .subtitle {
+    color: #888;
+    font-size: 9.5pt;
+    margin-bottom: 16pt;
+  }
+
+  .field-label {
+    font-size: 8.5pt;
+    color: #888888;
+    margin-bottom: 2pt;
+  }
+
+  .field-value {
+    color: #032147;
+    padding: 5pt 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 10pt;
+    min-height: 14pt;
+  }
+
+  .option-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6pt;
+    margin: 3pt 0;
+    color: #333;
+  }
+
+  .checkbox {
+    font-size: 12pt;
+    color: #209dd7;
+    flex-shrink: 0;
+  }
+
+  .checkbox.unchecked {
+    color: #ccc;
+  }
+
+  .signature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12pt;
+    font-size: 10pt;
+  }
+
+  .signature-table th {
+    background-color: #032147;
+    color: white;
+    padding: 7pt 9pt;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .signature-table th:first-child {
+    text-align: left;
+    width: 22%;
+  }
+
+  .signature-table td {
+    border: 1px solid #ccc;
+    padding: 7pt 9pt;
+    vertical-align: top;
+  }
+
+  .signature-table td:first-child {
+    font-weight: bold;
+    color: #555;
+    background-color: #f8f8f8;
+    width: 22%;
+  }
+
+  .signature-row td {
+    height: 36pt;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+
+  .standard-terms p {
+    text-align: justify;
+    margin-bottom: 10pt;
+  }
+
+  .term {
+    margin-bottom: 12pt;
+  }
+
+  .coverpage-ref {
+    font-weight: bold;
+    text-decoration: underline;
+    color: #032147;
+  }
+
+  .attribution {
+    font-size: 8.5pt;
+    color: #888;
+    margin-top: 20pt;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 8pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ COVER PAGE ═══════════════════════════ -->
+
+<h1>Mutual Non-Disclosure Agreement</h1>
+<p class="subtitle">
+  This Mutual Non-Disclosure Agreement (the "MNDA") consists of: (1) this Cover Page and
+  (2) the Common Paper Mutual NDA Standard Terms Version 1.0, identical to those posted at
+  commonpaper.com/standards/mutual-nda/1.0. Any modifications to the Standard Terms should
+  be made on the Cover Page, which will control over conflicts with the Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<h3>Purpose</h3>
+<div class="field-label">How Confidential Information may be used</div>
+<div class="field-value">{{ purpose }}</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>MNDA Term</h3>
+<div class="field-label">The length of this MNDA</div>
+{% if mnda_term.type == 'expires' %}
+<div class="option-row"><span class="checkbox">☑</span> Expires {{ mnda_term.years }} year(s) from Effective Date.</div>
+<div class="option-row"><span class="checkbox unchecked">☐</span> Continues until terminated in accordance with the terms of the MNDA.</div>
+{% else %}
+<div class="option-row"><span class="checkbox unchecked">☐</span> Expires [N] year(s) from Effective Date.</div>
+<div class="option-row"><span class="checkbox">☑</span> Continues until terminated in accordance with the terms of the MNDA.</div>
+{% endif %}
+
+<h3>Term of Confidentiality</h3>
+<div class="field-label">How long Confidential Information is protected</div>
+{% if term_of_confidentiality.type == 'years' %}
+<div class="option-row"><span class="checkbox">☑</span> {{ term_of_confidentiality.years }} year(s) from Effective Date, but in the case of trade secrets until Confidential Information is no longer considered a trade secret under applicable laws.</div>
+<div class="option-row"><span class="checkbox unchecked">☐</span> In perpetuity.</div>
+{% else %}
+<div class="option-row"><span class="checkbox unchecked">☐</span> [N] year(s) from Effective Date, but in the case of trade secrets until Confidential Information is no longer considered a trade secret under applicable laws.</div>
+<div class="option-row"><span class="checkbox">☑</span> In perpetuity.</div>
+{% endif %}
+
+<h3>Governing Law &amp; Jurisdiction</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">Jurisdiction</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<h3>MNDA Modifications</h3>
+<div class="field-value">{{ modifications if modifications else 'None' }}</div>
+
+<p>By signing this Cover Page, each party agrees to enter into this MNDA as of the Effective Date.</p>
+
+<table class="signature-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>PARTY 1</th>
+      <th>PARTY 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Company</td>
+      <td>{{ party1.company }}</td>
+      <td>{{ party2.company }}</td>
+    </tr>
+    <tr>
+      <td>Print Name</td>
+      <td>{{ party1.name }}</td>
+      <td>{{ party2.name }}</td>
+    </tr>
+    <tr>
+      <td>Title</td>
+      <td>{{ party1.title }}</td>
+      <td>{{ party2.title }}</td>
+    </tr>
+    <tr>
+      <td>Notice Address</td>
+      <td>{{ party1.address }}</td>
+      <td>{{ party2.address }}</td>
+    </tr>
+    <tr class="signature-row">
+      <td>Signature</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Date</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="attribution">
+  Common Paper Mutual Non-Disclosure Agreement (Version 1.0) free to use under CC BY 4.0.
+</p>
+
+<!-- ═══════════════════════ PAGE BREAK ═══════════════════════ -->
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ STANDARD TERMS ═══════════════════════ -->
+
+<h2>Standard Terms</h2>
+
+<div class="standard-terms">
+
+<div class="term">
+<p><strong>1. Introduction.</strong> This Mutual Non-Disclosure Agreement (which incorporates these Standard Terms
+and the Cover Page (defined below)) ("<strong>MNDA</strong>") allows each party ("<strong>Disclosing Party</strong>")
+to disclose or make available information in connection with the
+<span class="coverpage-ref">{{ purpose }}</span>
+which (1) the Disclosing Party identifies to the receiving party ("<strong>Receiving Party</strong>") as
+"confidential", "proprietary", or the like or (2) should be reasonably understood as confidential or
+proprietary due to its nature and the circumstances of its disclosure
+("<strong>Confidential Information</strong>"). Each party's Confidential Information also includes the
+existence and status of the parties' discussions and information on the Cover Page. Confidential
+Information includes technical or business information, product designs or roadmaps, requirements,
+pricing, security and compliance documentation, technology, inventions and know-how. To use this MNDA,
+the parties must complete and sign a cover page incorporating these Standard Terms
+("<strong>Cover Page</strong>"). Each party is identified on the Cover Page and capitalized terms have
+the meanings given herein or on the Cover Page.</p>
+</div>
+
+<div class="term">
+<p><strong>2. Use and Protection of Confidential Information.</strong> The Receiving Party shall:
+(a) use Confidential Information solely for the <span class="coverpage-ref">{{ purpose }}</span>;
+(b) not disclose Confidential Information to third parties without the Disclosing Party's prior written
+approval, except that the Receiving Party may disclose Confidential Information to its employees,
+agents, advisors, contractors and other representatives having a reasonable need to know for the
+<span class="coverpage-ref">{{ purpose }}</span>, provided these representatives are bound by
+confidentiality obligations no less protective of the Disclosing Party than the applicable terms in
+this MNDA and the Receiving Party remains responsible for their compliance with this MNDA; and
+(c) protect Confidential Information using at least the same protections the Receiving Party uses for
+its own similar information but no less than a reasonable standard of care.</p>
+</div>
+
+<div class="term">
+<p><strong>3. Exceptions.</strong> The Receiving Party's obligations in this MNDA do not apply to
+information that it can demonstrate: (a) is or becomes publicly available through no fault of the
+Receiving Party; (b) it rightfully knew or possessed prior to receipt from the Disclosing Party
+without confidentiality restrictions; (c) it rightfully obtained from a third party without
+confidentiality restrictions; or (d) it independently developed without using or referencing the
+Confidential Information.</p>
+</div>
+
+<div class="term">
+<p><strong>4. Disclosures Required by Law.</strong> The Receiving Party may disclose Confidential
+Information to the extent required by law, regulation or regulatory authority, subpoena or court
+order, provided (to the extent legally permitted) it provides the Disclosing Party reasonable advance
+notice of the required disclosure and reasonably cooperates, at the Disclosing Party's expense, with
+the Disclosing Party's efforts to obtain confidential treatment for the Confidential Information.</p>
+</div>
+
+<div class="term">
+<p><strong>5. Term and Termination.</strong> This MNDA commences on the
+<span class="coverpage-ref">{{ effective_date_formatted }}</span>
+and expires at the end of the
+<span class="coverpage-ref">{% if mnda_term.type == 'expires' %}{{ mnda_term.years }} year(s) from Effective Date{% else %}term (continues until terminated){% endif %}</span>.
+Either party may terminate this MNDA for any or no reason upon written notice to the other party.
+The Receiving Party's obligations relating to Confidential Information will survive for the
+<span class="coverpage-ref">{% if term_of_confidentiality.type == 'years' %}{{ term_of_confidentiality.years }} year(s) from Effective Date{% else %}perpetuity{% endif %}</span>,
+despite any expiration or termination of this MNDA.</p>
+</div>
+
+<div class="term">
+<p><strong>6. Return or Destruction of Confidential Information.</strong> Upon expiration or termination
+of this MNDA or upon the Disclosing Party's earlier request, the Receiving Party will:
+(a) cease using Confidential Information; (b) promptly after the Disclosing Party's written request,
+destroy all Confidential Information in the Receiving Party's possession or control or return it to
+the Disclosing Party; and (c) if requested by the Disclosing Party, confirm its compliance with these
+obligations in writing. As an exception to subsection (b), the Receiving Party may retain Confidential
+Information in accordance with its standard backup or record retention policies or as required by law,
+but the terms of this MNDA will continue to apply to the retained Confidential Information.</p>
+</div>
+
+<div class="term">
+<p><strong>7. Proprietary Rights.</strong> The Disclosing Party retains all of its intellectual property
+and other rights in its Confidential Information and its disclosure to the Receiving Party grants no
+license under such rights.</p>
+</div>
+
+<div class="term">
+<p><strong>8. Disclaimer.</strong> ALL CONFIDENTIAL INFORMATION IS PROVIDED "AS IS", WITH ALL FAULTS,
+AND WITHOUT WARRANTIES, INCLUDING THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE.</p>
+</div>
+
+<div class="term">
+<p><strong>9. Governing Law and Jurisdiction.</strong> This MNDA and all matters relating hereto are
+governed by, and construed in accordance with, the laws of the State of
+<span class="coverpage-ref">{{ governing_law }}</span>, without regard to the conflict of laws
+provisions of such <span class="coverpage-ref">{{ governing_law }}</span>. Any legal suit, action,
+or proceeding relating to this MNDA must be instituted in the federal or state courts located in
+<span class="coverpage-ref">{{ jurisdiction }}</span>. Each party irrevocably submits to the exclusive
+jurisdiction of such <span class="coverpage-ref">{{ jurisdiction }}</span> in any such suit, action,
+or proceeding.</p>
+</div>
+
+<div class="term">
+<p><strong>10. Equitable Relief.</strong> A breach of this MNDA may cause irreparable harm for which
+monetary damages are an insufficient remedy. Upon a breach of this MNDA, the Disclosing Party is
+entitled to seek appropriate equitable relief, including an injunction, in addition to its other
+remedies.</p>
+</div>
+
+<div class="term">
+<p><strong>11. General.</strong> Neither party has an obligation under this MNDA to disclose Confidential
+Information to the other or proceed with any proposed transaction. Neither party may assign this MNDA
+without the prior written consent of the other party, except that either party may assign this MNDA in
+connection with a merger, reorganization, acquisition or other transfer of all or substantially all its
+assets or voting securities. Any assignment in violation of this Section is null and void. This MNDA
+will bind and inure to the benefit of each party's permitted successors and assigns. Waivers must be
+signed by the waiving party's authorized representative and cannot be implied from conduct. If any
+provision of this MNDA is held unenforceable, it will be limited to the minimum extent necessary so
+the rest of this MNDA remains in effect. This MNDA (including the Cover Page) constitutes the entire
+agreement of the parties with respect to its subject matter, and supersedes all prior and
+contemporaneous understandings, agreements, representations, and warranties, whether written or oral,
+regarding such subject matter. This MNDA may only be amended, modified, waived, or supplemented by an
+agreement in writing signed by both parties. Notices, requests and approvals under this MNDA must be
+sent in writing to the email or postal addresses on the Cover Page and are deemed delivered on receipt.
+This MNDA may be executed in counterparts, including electronic copies, each of which is deemed an
+original and which together form the same agreement.</p>
+</div>
+
+</div>
+
+<p class="attribution">
+  Common Paper Mutual Non-Disclosure Agreement
+  <a href="https://commonpaper.com/standards/mutual-nda/1.0/">Version 1.0</a>
+  free to use under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+</p>
+
+</body>
+</html>
