@@ -45,6 +45,8 @@ scripts/stop-windows.ps1
 ```
 Backend available at http://localhost:8000
 
+> **Local dev note:** Port 8000 may conflict with other services. Run backend on port 8001 (`uv run uvicorn main:app --reload --port 8001`) and frontend with `npm run dev` (port 3000). The Next.js dev server proxies `/api/*` to port 8001 via `next.config.ts`. Docker is not yet set up (planned for PL-4).
+
 ## Color Scheme
 - Accent Yellow: `#ecad0a`
 - Blue Primary: `#209dd7`
@@ -78,6 +80,17 @@ cd backend && uv run uvicorn main:app --reload --port 8001
 cd frontend && npm run dev
 ```
 Open http://localhost:3000
+
+### Post-PL-3 fixes (on main)
+- Locked body/input/textarea to dark text — removed dark-mode CSS vars that caused near-white text on white background
+- Placeholder text darkened to `gray-500` for legibility
+- Added `suppressHydrationWarning` to `<body>` to suppress Grammarly extension hydration error
+
+### Not yet implemented
+- Docker container + start/stop scripts (planned for PL-4)
+- SQLite database / user authentication (planned for PL-4+)
+- AI chat interface (planned for PL-5+)
+- Support for document types other than Mutual NDA (planned for PL-6+)
 
 ### GitHub
 - Remote is `mmfofana/prelegal-1` (origin). Do not push to `ed-donner/prelegal`.
