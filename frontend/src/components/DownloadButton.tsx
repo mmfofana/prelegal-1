@@ -3,13 +3,15 @@
 import { useState } from "react";
 
 import { generatePdf } from "@/lib/api";
-import { NdaFormData } from "@/types/nda";
+import { DocumentFormData } from "@/types/document";
+import { DocumentTypeDef } from "@/lib/document-registry";
 
 interface DownloadButtonProps {
-  data: NdaFormData;
+  data: DocumentFormData;
+  docDef: DocumentTypeDef;
 }
 
-export function DownloadButton({ data }: DownloadButtonProps) {
+export function DownloadButton({ data, docDef }: DownloadButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +23,7 @@ export function DownloadButton({ data }: DownloadButtonProps) {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = "mutual-nda.pdf";
+      anchor.download = docDef.pdfFilename;
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
@@ -43,9 +45,7 @@ export function DownloadButton({ data }: DownloadButtonProps) {
       >
         {loading ? "Generating PDF…" : "Download PDF"}
       </button>
-      {error && (
-        <p className="mt-2 text-xs text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </div>
   );
 }

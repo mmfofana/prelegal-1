@@ -1,0 +1,62 @@
+{% from '_cover_base.html' import shared_css, signature_table, standard_terms_section %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">{{ shared_css() }}</head>
+<body>
+
+<h1>Pilot Agreement</h1>
+<p class="subtitle">
+  This Pilot Agreement consists of: (1) this Cover Page and (2) the Common Paper
+  Pilot Agreement Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<div class="field-row">
+  <div class="field-col">
+    <h3>Provider</h3>
+    <div class="field-value">{{ party1.company }}</div>
+  </div>
+  <div class="field-col">
+    <h3>Customer</h3>
+    <div class="field-value">{{ party2.company }}</div>
+  </div>
+</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>Product</h3>
+<div class="field-value">{{ extra.product_name }}</div>
+
+<h3>Pilot Period</h3>
+<div class="field-value">{{ extra.pilot_period }}</div>
+
+<h3>Pilot Users</h3>
+<div class="field-value">{{ extra.pilot_users }}</div>
+
+<h3>Success Criteria</h3>
+<div class="field-value">{{ extra.success_criteria }}</div>
+
+<h3>Pilot Fee</h3>
+<div class="field-value">{{ extra.pilot_fee }}</div>
+
+{% if extra.post_pilot_pricing %}
+<h3>Post-Pilot Pricing</h3>
+<div class="field-value">{{ extra.post_pilot_pricing }}</div>
+{% endif %}
+
+<h3>Governing Law &amp; Jurisdiction</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">Jurisdiction</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<p>By signing this Cover Page, each party agrees to the terms of this Agreement as of the Effective Date.</p>
+{{ signature_table(party1, party2, doc_def.party1_label, doc_def.party2_label) }}
+
+<p class="attribution">Common Paper Pilot Agreement free to use under CC BY 4.0.</p>
+
+{{ standard_terms_section(terms_html, "Pilot Agreement") }}
+</body>
+</html>

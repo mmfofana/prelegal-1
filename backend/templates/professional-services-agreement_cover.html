@@ -1,0 +1,62 @@
+{% from '_cover_base.html' import shared_css, signature_table, standard_terms_section %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">{{ shared_css() }}</head>
+<body>
+
+<h1>Professional Services Agreement</h1>
+<p class="subtitle">
+  This Professional Services Agreement consists of: (1) this Cover Page and (2) the Common Paper
+  Professional Services Agreement Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<div class="field-row">
+  <div class="field-col">
+    <h3>Provider</h3>
+    <div class="field-value">{{ party1.company }}</div>
+  </div>
+  <div class="field-col">
+    <h3>Customer</h3>
+    <div class="field-value">{{ party2.company }}</div>
+  </div>
+</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>Services Description</h3>
+<div class="field-value">{{ extra.services_description }}</div>
+
+<h3>Key Deliverables</h3>
+<div class="field-value">{{ extra.deliverables }}</div>
+
+<h3>Fees</h3>
+<div class="field-value">{{ extra.fees }}</div>
+
+<h3>Payment Schedule</h3>
+<div class="field-value">{{ extra.payment_schedule }}</div>
+
+<h3>Work Product Ownership</h3>
+<div class="field-value">{{ extra.ip_ownership }}</div>
+
+{% if extra.change_order_process %}
+<h3>Change Order Process</h3>
+<div class="field-value">{{ extra.change_order_process }}</div>
+{% endif %}
+
+<h3>Governing Law &amp; Jurisdiction</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">Jurisdiction</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<p>By signing this Cover Page, each party agrees to the terms of this Agreement as of the Effective Date.</p>
+{{ signature_table(party1, party2, doc_def.party1_label, doc_def.party2_label) }}
+
+<p class="attribution">Common Paper Professional Services Agreement free to use under CC BY 4.0.</p>
+
+{{ standard_terms_section(terms_html, "Professional Services Agreement") }}
+</body>
+</html>

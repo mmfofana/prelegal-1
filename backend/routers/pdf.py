@@ -1,15 +1,17 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 
-from schemas.nda import NdaRequest
+from document_registry import DOCUMENT_REGISTRY
+from schemas.document import GeneratePdfRequest
 from services.pdf_service import generate_pdf
 
 router = APIRouter()
 
 
 @router.post("/generate-pdf")
-def generate_nda_pdf(request: NdaRequest) -> Response:
-    """Generate a Mutual NDA PDF from the submitted form data."""
+def generate_document_pdf(request: GeneratePdfRequest) -> Response:
+    """Generate a PDF from submitted cover page fields for any supported document type."""
+    doc_def = DOCUMENT_REGISTRY[request.document_type]
     try:
         pdf_bytes = generate_pdf(request.model_dump())
     except Exception as exc:
@@ -18,5 +20,5 @@ def generate_nda_pdf(request: NdaRequest) -> Response:
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": 'attachment; filename="mutual-nda.pdf"'},
+        headers={"Content-Disposition": f'attachment; filename="{doc_def.pdf_filename}"'},
     )
