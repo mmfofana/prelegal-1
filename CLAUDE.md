@@ -106,16 +106,22 @@ scripts/stop-mac.sh
 
 ### Completed (PL-5)
 - Left panel now has a **Chat | Form** tab toggle; both tabs share `formData` state and the live preview remains on the right
-- **Chat tab**: freeform AI conversation — user describes their NDA needs; AI (gpt-oss-120b via Cerebras/OpenRouter) extracts field values via `PartialNdaFields` structured outputs and updates the document incrementally
-- `POST /api/chat` (auth-gated): receives `{messages, current_fields}`, returns `{reply, fields}`; stateless — conversation history lives in React state and resets on page reload
+- **Chat tab**: freeform AI conversation — AI (gpt-oss-120b via Cerebras/OpenRouter) extracts field values via structured outputs and updates the document incrementally
+- `POST /api/chat` (auth-gated): receives `{document_type, messages, current_fields}`, returns `{reply, fields}`; stateless
 - `backend/deps.py`: shared `get_current_user` FastAPI dependency used by both auth and chat routers
-- `backend/schemas/chat.py`, `backend/services/chat_service.py`, `backend/routers/chat.py`: chat schema, LiteLLM service, and router
-- `frontend/src/lib/chat.ts`: `sendMessage()` + `mergeFields()` (nulls never overwrite existing values)
-- `frontend/src/components/ChatPanel.tsx`: message list, auto-scroll, Enter to send
-- 44 backend tests (100% pass rate)
+- `frontend/src/components/ChatPanel.tsx`: message list, auto-scroll, Enter to send, auto-focus after AI response
 
-### Not yet implemented
-- Support for document types other than Mutual NDA (planned for PL-6+)
+### Completed (PL-6)
+- **All 12 document types supported** — every CommonPaper template now has a working chat, form, preview, and PDF download
+- `backend/document_registry.py`: central `DocumentTypeDef` registry drives AI prompts, PDF templates, and field definitions for all document types
+- `backend/schemas/document.py`: generic `GeneratePdfRequest`, `PartialDocumentFields`, `AiDocumentOutput`, `DocumentChatRequest` replace NDA-specific schemas
+- `backend/services/pdf_service.py`: dispatches to per-document Jinja2 cover templates; standard terms rendered from markdown via `markdown` library; `_cover_base.html` macro library shared across all templates
+- `backend/services/chat_service.py`: dynamic system prompts built from registry field definitions; AI asks follow-up questions when required fields are missing
+- `frontend/src/lib/document-registry.ts`: TypeScript mirror of backend registry
+- `frontend/src/types/document.ts`: generic `DocumentFormData` with `extra_fields: Record<string, string>`
+- `frontend/src/app/document/[slug]/` dynamic route: `page.tsx` (server, exports `generateStaticParams`) + `DocumentEditor.tsx` (client); header dropdown to switch document types
+- `frontend/src/app/page.tsx`: catalog home page with grid of all 12 document cards
+- 53 backend tests (100% pass rate); Next.js static build generates all 12 document routes
 
 ### GitHub
 - Remote is `mmfofana/prelegal-1` (origin). Do not push to `ed-donner/prelegal`.
