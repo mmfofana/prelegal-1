@@ -27,8 +27,8 @@ There is an OPENROUTER_API_KEY in the .env file in the project root.
 The entire project should be packaged into a Docker container.  
 The backend should be in backend/ and be a uv project, using FastAPI.  
 The frontend should be in frontend/  
-The database should use SQLLite and be created from scratch each time the Docker container is brought up, allowing for a users table with sign up and sign in.  
-Consider statically building the frontend and serving it via FastAPI, if that will work.  
+The database uses SQLite with SQLAlchemy. In Docker it is stored at `/app/data/prelegal.db` on a named volume (`prelegal-data`) so it persists across restarts. In local dev it creates `backend/prelegal.db`.  
+The frontend is statically exported (`next build`) and served by FastAPI — single container, no nginx.  
 There should be scripts in scripts/ for:  
 ```bash
 # Mac
@@ -88,11 +88,12 @@ Open http://localhost:3000
 
 ### Completed (PL-4)
 - Docker: single-container build (`Dockerfile` + `docker-compose.yml`); FastAPI on port 8000 serves both API and static frontend
-- SQLite database at `/app/data/prelegal.db` (Docker volume `prelegal-data` for persistence)
-- User auth: HTTP-only session cookies via `itsdangerous`; bcrypt password hashing
-- Endpoints: `POST /api/auth/signup`, `POST /api/auth/signin`, `POST /api/auth/signout`, `GET /api/auth/me`
-- Frontend: `/login` and `/signup` pages; NDA page gated behind auth (client-side redirect)
-- Next.js static export (`output: 'export'`) served by FastAPI; dev proxy still works via conditional `rewrites`
+- SQLite via SQLAlchemy: `backend/database.py` with `init_db()` on startup; Docker volume `prelegal-data` for persistence
+- User auth: HTTP-only session cookies (`itsdangerous` + bcrypt); `SESSION_SECRET` loaded from `.env`
+- Auth endpoints: `POST /api/auth/signup`, `POST /api/auth/signin`, `POST /api/auth/signout`, `GET /api/auth/me`
+- Frontend `/login` and `/signup` pages; NDA page gated behind `useAuth()` hook (redirects to `/login`)
+- Next.js `output: 'export'` static build served by FastAPI; dev proxy still works via conditional `rewrites`
+- `main.py` loads `.env` from project root via `load_dotenv()` — required for `SESSION_SECRET` and `CORS_ORIGINS`
 - Start/stop scripts for Mac, Linux, and Windows in `scripts/`
 - 36 backend tests (100% pass rate); in-memory SQLite with `StaticPool` for test isolation
 
