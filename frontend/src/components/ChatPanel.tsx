@@ -2,30 +2,48 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { NdaFormData } from "@/types/nda";
+import { DocumentFormData } from "@/types/document";
+import { DocumentTypeDef } from "@/lib/document-registry";
 import { ChatMessage, mergeFields, sendMessage } from "@/lib/chat";
 
 interface ChatPanelProps {
-  data: NdaFormData;
-  onChange: (data: NdaFormData) => void;
+  data: DocumentFormData;
+  docDef: DocumentTypeDef;
+  onChange: (data: DocumentFormData) => void;
 }
 
-const GREETING =
-  "Hi! I'll help you draft your Mutual NDA. Tell me about the agreement you need — who are the parties involved, what's the purpose, and any other details you'd like to include.";
+function buildGreeting(docDef: DocumentTypeDef): string {
+  return `Hi! I'll help you draft your ${docDef.displayName}. Tell me about the agreement you need — who are the parties involved${docDef.extraFields.length > 0 ? ", what are the key terms" : ""}, and any other details you'd like to include.`;
+}
 
-export function ChatPanel({ data, onChange }: ChatPanelProps) {
+export function ChatPanel({ data, docDef, onChange }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   // Always holds the latest data so the merge after an async response is never stale
-  const latestDataRef = useRef<NdaFormData>(data);
+  const latestDataRef = useRef<DocumentFormData>(data);
   useEffect(() => { latestDataRef.current = data; }, [data]);
+
+  // Re-initialize chat when document type changes
+  useEffect(() => {
+    setMessages([]);
+    setInput("");
+    setError(null);
+  }, [docDef.slug]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Return focus to input after AI responds
+  useEffect(() => {
+    if (!loading) {
+      inputRef.current?.focus();
+    }
+  }, [loading]);
 
   async function handleSend() {
     const trimmed = input.trim();
@@ -39,7 +57,7 @@ export function ChatPanel({ data, onChange }: ChatPanelProps) {
     setError(null);
 
     try {
-      const response = await sendMessage(nextMessages, latestDataRef.current);
+      const response = await sendMessage(docDef.slug, nextMessages, latestDataRef.current);
       const aiMessage: ChatMessage = { role: "assistant", content: response.reply };
       setMessages([...nextMessages, aiMessage]);
       onChange(mergeFields(latestDataRef.current, response.fields));
@@ -61,10 +79,10 @@ export function ChatPanel({ data, onChange }: ChatPanelProps) {
     <div className="flex flex-col h-full">
       {/* Message list */}
       <div className="flex-1 overflow-y-auto space-y-3 pb-2 min-h-0">
-        {/* Hardcoded greeting — not sent to the API */}
+        {/* Greeting — not sent to the API */}
         <div className="flex justify-start">
           <div className="max-w-[85%] rounded-lg px-4 py-2 text-sm bg-gray-100 text-gray-800">
-            {GREETING}
+            {buildGreeting(docDef)}
           </div>
         </div>
 
@@ -97,11 +115,12 @@ export function ChatPanel({ data, onChange }: ChatPanelProps) {
       <div className="border-t border-gray-200 pt-3 shrink-0">
         <div className="flex gap-2 items-end">
           <textarea
+            ref={inputRef}
             rows={2}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Describe your NDA… (Enter to send, Shift+Enter for new line)"
+            placeholder={`Describe your ${docDef.displayName}… (Enter to send, Shift+Enter for new line)`}
             disabled={loading}
             className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#209dd7] placeholder:text-gray-500 disabled:opacity-50"
           />

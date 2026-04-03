@@ -1,22 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { ChatPanel } from "@/components/ChatPanel";
-import { DownloadButton } from "@/components/DownloadButton";
-import { NdaForm } from "@/components/NdaForm";
-import { NdaPreview } from "@/components/NdaPreview";
-import { NdaFormData, defaultNdaFormData } from "@/types/nda";
+import { CATALOG_ORDER, DOCUMENT_REGISTRY } from "@/lib/document-registry";
 import { useAuth, signout } from "@/lib/auth";
-
-type ActiveTab = "chat" | "form";
 
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [formData, setFormData] = useState<NdaFormData>(defaultNdaFormData());
-  const [activeTab, setActiveTab] = useState<ActiveTab>("chat");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,7 +32,7 @@ export default function Home() {
             <h1 className="text-xl font-bold tracking-tight">
               <span className="text-[#ecad0a]">Pre</span>legal
             </h1>
-            <p className="text-sm text-gray-300">Mutual NDA Creator</p>
+            <p className="text-sm text-gray-300">Legal Document Creator</p>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-300">{user.email}</span>
@@ -50,58 +42,69 @@ export default function Home() {
             >
               Sign out
             </button>
-            <DownloadButton data={formData} />
           </div>
         </div>
       </header>
 
-      {/* Two-column layout */}
-      <div className="max-w-7xl mx-auto flex gap-0 h-[calc(100vh-72px)]">
-        {/* Left — Chat or Form */}
-        <aside className="w-[420px] min-w-[340px] bg-white border-r border-gray-200 flex flex-col overflow-hidden">
-          {/* Tab toggle */}
-          <div className="flex border-b border-gray-200 shrink-0">
-            <button
-              onClick={() => setActiveTab("chat")}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                activeTab === "chat"
-                  ? "text-[#032147] border-b-2 border-[#209dd7]"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              Chat
-            </button>
-            <button
-              onClick={() => setActiveTab("form")}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                activeTab === "form"
-                  ? "text-[#032147] border-b-2 border-[#209dd7]"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              Form
-            </button>
-          </div>
+      {/* Catalog */}
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-bold text-[#032147] mb-3">
+            Choose a Legal Document
+          </h2>
+          <p className="text-gray-500 max-w-xl mx-auto">
+            Select a template to start drafting. Our AI will guide you through
+            filling in the key terms via conversation, or you can use the form
+            directly.
+          </p>
+        </div>
 
-          {/* Panel content */}
-          {activeTab === "chat" ? (
-            <div className="flex-1 min-h-0 flex flex-col p-6">
-              <ChatPanel data={formData} onChange={setFormData} />
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto p-6">
-              <NdaForm data={formData} onChange={setFormData} />
-            </div>
-          )}
-        </aside>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {CATALOG_ORDER.map((slug) => {
+            const def = DOCUMENT_REGISTRY[slug];
+            // Deduplicate: mutual-nda-coverpage points to same editor as mutual-nda
+            const href = slug === "mutual-nda-coverpage" ? "/document/mutual-nda" : `/document/${slug}`;
+            return (
+              <button
+                key={slug}
+                onClick={() => router.push(href)}
+                className="group text-left bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md hover:border-[#209dd7] transition-all"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="font-semibold text-[#032147] group-hover:text-[#209dd7] transition-colors leading-tight">
+                    {def.displayName}
+                  </h3>
+                  <span className="ml-2 shrink-0 text-[#209dd7] opacity-0 group-hover:opacity-100 transition-opacity">
+                    →
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 leading-relaxed">{def.description}</p>
+                <div className="mt-4 flex gap-2">
+                  <span className="text-xs bg-gray-100 text-gray-600 rounded-full px-2 py-0.5">
+                    {def.party1Label}
+                  </span>
+                  <span className="text-xs bg-gray-100 text-gray-600 rounded-full px-2 py-0.5">
+                    {def.party2Label}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Right — Live Preview */}
-        <main className="flex-1 overflow-y-auto p-8 bg-gray-50">
-          <div className="max-w-2xl mx-auto bg-white shadow-sm rounded-lg p-8 border border-gray-100">
-            <NdaPreview data={formData} />
-          </div>
-        </main>
-      </div>
+        <p className="mt-10 text-center text-xs text-gray-400">
+          All templates from{" "}
+          <a
+            href="https://commonpaper.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gray-600"
+          >
+            Common Paper
+          </a>{" "}
+          · Free to use under CC BY 4.0
+        </p>
+      </main>
     </div>
   );
 }

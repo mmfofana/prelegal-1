@@ -1,45 +1,52 @@
-import { NdaFormData } from "@/types/nda";
+import { DocumentFormData, Party } from "@/types/document";
 
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
 }
 
-export interface PartialNdaParty {
+export interface PartialParty {
   company?: string | null;
   name?: string | null;
   title?: string | null;
   address?: string | null;
 }
 
-export interface PartialNdaFields {
-  purpose?: string | null;
+export interface PartialDocumentFields {
   effective_date?: string | null;
-  mnda_term_type?: "expires" | "continues" | null;
-  mnda_term_years?: number | null;
-  term_of_confidentiality_type?: "years" | "perpetuity" | null;
-  term_of_confidentiality_years?: number | null;
   governing_law?: string | null;
   jurisdiction?: string | null;
-  modifications?: string | null;
-  party1?: PartialNdaParty | null;
-  party2?: PartialNdaParty | null;
+  party1?: PartialParty | null;
+  party2?: PartialParty | null;
+  extra_fields?: Record<string, string | null> | null;
 }
 
 export interface ChatApiResponse {
   reply: string;
-  fields: PartialNdaFields;
+  fields: PartialDocumentFields;
 }
 
 export async function sendMessage(
+  documentType: string,
   messages: ChatMessage[],
-  currentFields: NdaFormData
+  currentFields: DocumentFormData,
 ): Promise<ChatApiResponse> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ messages, current_fields: currentFields }),
+    body: JSON.stringify({
+      document_type: documentType,
+      messages,
+      current_fields: {
+        effective_date: currentFields.effective_date || null,
+        governing_law: currentFields.governing_law || null,
+        jurisdiction: currentFields.jurisdiction || null,
+        party1: currentFields.party1,
+        party2: currentFields.party2,
+        extra_fields: currentFields.extra_fields,
+      },
+    }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -48,53 +55,40 @@ export async function sendMessage(
   return res.json() as Promise<ChatApiResponse>;
 }
 
-export function mergeFields(current: NdaFormData, partial: PartialNdaFields): NdaFormData {
+function mergeParty(current: Party, partial: PartialParty): Party {
+  return {
+    company: partial.company != null ? partial.company : current.company,
+    name: partial.name != null ? partial.name : current.name,
+    title: partial.title != null ? partial.title : current.title,
+    address: partial.address != null ? partial.address : current.address,
+  };
+}
+
+export function mergeFields(
+  current: DocumentFormData,
+  partial: PartialDocumentFields,
+): DocumentFormData {
   const updated = { ...current };
 
-  if (partial.purpose != null) updated.purpose = partial.purpose;
   if (partial.effective_date != null) updated.effective_date = partial.effective_date;
   if (partial.governing_law != null) updated.governing_law = partial.governing_law;
   if (partial.jurisdiction != null) updated.jurisdiction = partial.jurisdiction;
-  if (partial.modifications != null) updated.modifications = partial.modifications;
-
-  if (partial.mnda_term_type != null || partial.mnda_term_years != null) {
-    updated.mnda_term = {
-      ...current.mnda_term,
-      ...(partial.mnda_term_type != null ? { type: partial.mnda_term_type } : {}),
-      ...(partial.mnda_term_years != null ? { years: partial.mnda_term_years } : {}),
-    };
-  }
-
-  if (partial.term_of_confidentiality_type != null || partial.term_of_confidentiality_years != null) {
-    updated.term_of_confidentiality = {
-      ...current.term_of_confidentiality,
-      ...(partial.term_of_confidentiality_type != null
-        ? { type: partial.term_of_confidentiality_type }
-        : {}),
-      ...(partial.term_of_confidentiality_years != null
-        ? { years: partial.term_of_confidentiality_years }
-        : {}),
-    };
-  }
 
   if (partial.party1 != null) {
-    updated.party1 = {
-      ...current.party1,
-      ...(partial.party1.company != null ? { company: partial.party1.company } : {}),
-      ...(partial.party1.name != null ? { name: partial.party1.name } : {}),
-      ...(partial.party1.title != null ? { title: partial.party1.title } : {}),
-      ...(partial.party1.address != null ? { address: partial.party1.address } : {}),
-    };
+    updated.party1 = mergeParty(current.party1, partial.party1);
+  }
+  if (partial.party2 != null) {
+    updated.party2 = mergeParty(current.party2, partial.party2);
   }
 
-  if (partial.party2 != null) {
-    updated.party2 = {
-      ...current.party2,
-      ...(partial.party2.company != null ? { company: partial.party2.company } : {}),
-      ...(partial.party2.name != null ? { name: partial.party2.name } : {}),
-      ...(partial.party2.title != null ? { title: partial.party2.title } : {}),
-      ...(partial.party2.address != null ? { address: partial.party2.address } : {}),
-    };
+  if (partial.extra_fields != null) {
+    const merged: Record<string, string> = { ...current.extra_fields };
+    for (const [key, value] of Object.entries(partial.extra_fields)) {
+      if (value != null) {
+        merged[key] = value;
+      }
+    }
+    updated.extra_fields = merged;
   }
 
   return updated;
