@@ -1,0 +1,78 @@
+{# Shared CSS and page structure for all cover page templates.
+   Usage: {% include '_cover_base.html' %} is NOT how Jinja2 inheritance works;
+   instead each template includes this via {% from '_cover_base.html' import shared_css %} #}
+
+{% macro shared_css() %}
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2.5cm;
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #888;
+    }
+  }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; color: #333; line-height: 1.5; }
+  h1 { color: #032147; font-size: 18pt; margin-bottom: 4pt; }
+  h2 { color: #032147; font-size: 13pt; margin-top: 20pt; margin-bottom: 8pt;
+       border-bottom: 2px solid #209dd7; padding-bottom: 4pt; }
+  h3 { color: #209dd7; font-size: 10.5pt; margin-top: 14pt; margin-bottom: 2pt; }
+  .subtitle { color: #888; font-size: 9.5pt; margin-bottom: 16pt; }
+  .field-label { font-size: 8.5pt; color: #888888; margin-bottom: 2pt; }
+  .field-value { color: #032147; padding: 5pt 0; border-bottom: 1px solid #e0e0e0;
+                 margin-bottom: 10pt; min-height: 14pt; }
+  .field-row { display: flex; gap: 20pt; margin-bottom: 0; }
+  .field-row .field-col { flex: 1; }
+  .signature-table { width: 100%; border-collapse: collapse; margin-top: 12pt; font-size: 10pt; }
+  .signature-table th { background-color: #032147; color: white; padding: 7pt 9pt;
+                        text-align: center; font-weight: bold; }
+  .signature-table th:first-child { text-align: left; width: 22%; }
+  .signature-table td { border: 1px solid #ccc; padding: 7pt 9pt; vertical-align: top; }
+  .signature-table td:first-child { font-weight: bold; color: #555; background-color: #f8f8f8; width: 22%; }
+  .signature-row td { height: 36pt; }
+  .page-break { page-break-after: always; }
+  .attribution { font-size: 8.5pt; color: #888; margin-top: 20pt;
+                 border-top: 1px solid #e0e0e0; padding-top: 8pt; }
+  /* Markdown-rendered standard terms */
+  .standard-terms h1 { font-size: 14pt; border-bottom: 1px solid #e0e0e0; padding-bottom: 4pt; }
+  .standard-terms h2 { font-size: 11pt; margin-top: 14pt; }
+  .standard-terms h3 { font-size: 10pt; }
+  .standard-terms p { text-align: justify; margin-bottom: 8pt; }
+  .standard-terms ol, .standard-terms ul { margin-bottom: 8pt; padding-left: 20pt; }
+  .standard-terms li { margin-bottom: 4pt; }
+  .standard-terms strong { color: #032147; }
+  /* Span classes from CommonPaper templates */
+  .standard-terms .coverpage_link { font-weight: bold; color: #032147; }
+  .standard-terms .keyterms_link { font-weight: bold; color: #209dd7; }
+  .standard-terms .header_2 { font-weight: bold; }
+  .standard-terms .header_3 { font-weight: bold; }
+</style>
+{% endmacro %}
+
+{% macro signature_table(party1, party2, p1_label, p2_label) %}
+<table class="signature-table">
+  <thead>
+    <tr><th></th><th>{{ p1_label | upper }}</th><th>{{ p2_label | upper }}</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Company</td><td>{{ party1.company }}</td><td>{{ party2.company }}</td></tr>
+    <tr><td>Print Name</td><td>{{ party1.name }}</td><td>{{ party2.name }}</td></tr>
+    <tr><td>Title</td><td>{{ party1.title }}</td><td>{{ party2.title }}</td></tr>
+    <tr><td>Notice Address</td><td>{{ party1.address }}</td><td>{{ party2.address }}</td></tr>
+    <tr class="signature-row"><td>Signature</td><td></td><td></td></tr>
+    <tr><td>Date</td><td></td><td></td></tr>
+  </tbody>
+</table>
+{% endmacro %}
+
+{% macro standard_terms_section(terms_html, doc_name) %}
+<div class="page-break"></div>
+<h2>Standard Terms</h2>
+<div class="standard-terms">
+{{ terms_html | safe }}
+</div>
+<p class="attribution">
+  Common Paper {{ doc_name }} free to use under CC BY 4.0.
+</p>
+{% endmacro %}

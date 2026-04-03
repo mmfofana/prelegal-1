@@ -1,0 +1,67 @@
+{% from '_cover_base.html' import shared_css, signature_table, standard_terms_section %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">{{ shared_css() }}</head>
+<body>
+
+<h1>Cloud Service Agreement</h1>
+<p class="subtitle">
+  This Cloud Service Agreement consists of: (1) this Cover Page and (2) the Common Paper
+  Cloud Service Agreement Standard Terms. The Cover Page controls over any conflicts with the
+  Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<div class="field-row">
+  <div class="field-col">
+    <h3>Provider</h3>
+    <div class="field-value">{{ party1.company }}</div>
+  </div>
+  <div class="field-col">
+    <h3>Customer</h3>
+    <div class="field-value">{{ party2.company }}</div>
+  </div>
+</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>Cloud Service</h3>
+<div class="field-label">Name of the cloud service or product</div>
+<div class="field-value">{{ extra.cloud_service_name }}</div>
+
+<h3>Subscription Period</h3>
+<div class="field-value">{{ extra.subscription_period }}</div>
+
+<h3>Fees &amp; Payment</h3>
+<div class="field-label">Fees</div>
+<div class="field-value">{{ extra.fees }}</div>
+<div class="field-label">Payment Process</div>
+<div class="field-value">{{ extra.payment_process }}</div>
+
+<h3>Liability Caps</h3>
+<div class="field-label">General Cap Amount</div>
+<div class="field-value">{{ extra.general_cap_amount }}</div>
+<div class="field-label">Increased Cap Amount</div>
+<div class="field-value">{{ extra.increased_cap_amount }}</div>
+
+{% if extra.additional_warranties %}
+<h3>Additional Warranties</h3>
+<div class="field-value">{{ extra.additional_warranties }}</div>
+{% endif %}
+
+<h3>Governing Law &amp; {{ doc_def.jurisdiction_label }}</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">{{ doc_def.jurisdiction_label }}</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<p>By signing this Cover Page, each party agrees to the terms of this Agreement as of the Effective Date.</p>
+{{ signature_table(party1, party2, doc_def.party1_label, doc_def.party2_label) }}
+
+<p class="attribution">Common Paper Cloud Service Agreement free to use under CC BY 4.0.</p>
+
+{{ standard_terms_section(terms_html, "Cloud Service Agreement") }}
+</body>
+</html>

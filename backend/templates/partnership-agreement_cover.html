@@ -1,0 +1,60 @@
+{% from '_cover_base.html' import shared_css, signature_table, standard_terms_section %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">{{ shared_css() }}</head>
+<body>
+
+<h1>Partnership Agreement</h1>
+<p class="subtitle">
+  This Partnership Agreement consists of: (1) this Cover Page and (2) the Common Paper
+  Partnership Agreement Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<div class="field-row">
+  <div class="field-col">
+    <h3>Company</h3>
+    <div class="field-value">{{ party1.company }}</div>
+  </div>
+  <div class="field-col">
+    <h3>Partner</h3>
+    <div class="field-value">{{ party2.company }}</div>
+  </div>
+</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>Partnership Purpose</h3>
+<div class="field-value">{{ extra.partnership_purpose }}</div>
+
+<h3>Territory</h3>
+<div class="field-value">{{ extra.territory }}</div>
+
+<h3>Term</h3>
+<div class="field-value">{{ extra.term_length }}</div>
+
+<h3>Partner Fees</h3>
+<div class="field-value">{{ extra.partner_fees if extra.partner_fees else 'None' }}</div>
+
+<h3>Revenue Share</h3>
+<div class="field-value">{{ extra.revenue_share }}</div>
+
+<h3>Trademark License Scope</h3>
+<div class="field-value">{{ extra.trademark_license_scope }}</div>
+
+<h3>Governing Law &amp; {{ doc_def.jurisdiction_label }}</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">{{ doc_def.jurisdiction_label }}</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<p>By signing this Cover Page, each party agrees to the terms of this Agreement as of the Effective Date.</p>
+{{ signature_table(party1, party2, doc_def.party1_label, doc_def.party2_label) }}
+
+<p class="attribution">Common Paper Partnership Agreement free to use under CC BY 4.0.</p>
+
+{{ standard_terms_section(terms_html, "Partnership Agreement") }}
+</body>
+</html>
