@@ -100,3 +100,47 @@ class SavedDocumentSummary(BaseModel):
 
 class SavedDocumentDetail(SavedDocumentSummary):
     fields: dict
+
+
+# ── Party profile schemas ────────────────────────────────────────────────────
+
+class PartyProfileCreate(BaseModel):
+    label: str
+    company: str = ""
+    name: str = ""
+    title: str = ""
+    address: str = ""
+
+
+class PartyProfileUpdate(BaseModel):
+    label: str | None = None
+    company: str | None = None
+    name: str | None = None
+    title: str | None = None
+    address: str | None = None
+
+
+class PartyProfileSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    label: str
+    company: str
+    name: str
+    title: str
+    address: str
+    created_at: datetime
+
+
+# ── Document version schemas ─────────────────────────────────────────────────
+
+class DocumentVersionSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    version_number: int
+    created_at: datetime
+
+
+class DocumentVersionDetail(DocumentVersionSummary):
+    fields: dict

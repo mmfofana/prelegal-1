@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import json
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from document_registry import DOCUMENT_REGISTRY
+from models.document_version import DocumentVersion
 from models.saved_document import SavedDocument
 
 
@@ -31,6 +33,14 @@ def save_document(db: Session, user_id: int, document_type: str, fields: dict) -
         fields_json=json.dumps(fields),
     )
     db.add(doc)
+    db.flush()
+
+    version = DocumentVersion(
+        document_id=doc.id,
+        version_number=1,
+        fields_json=doc.fields_json,
+    )
+    db.add(version)
     db.commit()
     db.refresh(doc)
     return doc
@@ -60,3 +70,36 @@ def delete_document(db: Session, user_id: int, doc_id: int) -> bool:
     db.delete(doc)
     db.commit()
     return True
+
+
+def list_versions(db: Session, user_id: int, doc_id: int) -> list[DocumentVersion]:
+    """List all versions for a document, verifying ownership."""
+    doc = get_document(db, user_id, doc_id)
+    if not doc:
+        return []
+    return (
+        db.query(DocumentVersion)
+        .filter(DocumentVersion.document_id == doc_id)
+        .order_by(DocumentVersion.version_number.asc())
+        .all()
+    )
+
+
+def get_version(
+    db: Session,
+    user_id: int,
+    doc_id: int,
+    version_number: int,
+) -> DocumentVersion | None:
+    """Get a specific version, verifying document ownership."""
+    doc = get_document(db, user_id, doc_id)
+    if not doc:
+        return None
+    return (
+        db.query(DocumentVersion)
+        .filter(
+            DocumentVersion.document_id == doc_id,
+            DocumentVersion.version_number == version_number,
+        )
+        .first()
+    )

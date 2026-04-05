@@ -66,6 +66,63 @@ def generate_pdf(data: dict) -> bytes:
     return HTML(string=html_string).write_pdf()
 
 
+def render_signed_document_html(data: dict, session: object, requests: list) -> str:
+    """Render HTML for a fully signed document, appending a signatures section."""
+    base_html = render_document_html(data)
+
+    sig_rows = ""
+    for req in requests:
+        signed_at_str = ""
+        if getattr(req, "signed_at", None):
+            signed_at_str = req.signed_at.strftime("%Y-%m-%d %H:%M UTC")
+        sig_rows += (
+            f"<tr>"
+            f"<td style='border:1px solid #ddd;padding:8px'>{req.name}</td>"
+            f"<td style='border:1px solid #ddd;padding:8px'>{getattr(req, 'signed_title', '') or ''}</td>"
+            f"<td style='border:1px solid #ddd;padding:8px'>{req.email}</td>"
+            f"<td style='border:1px solid #ddd;padding:8px'>{req.role}</td>"
+            f"<td style='border:1px solid #ddd;padding:8px'>{signed_at_str}</td>"
+            f"<td style='border:1px solid #ddd;padding:8px'>{getattr(req, 'ip_address', '') or ''}</td>"
+            f"</tr>"
+        )
+
+    created_at_str = ""
+    if getattr(session, "created_at", None):
+        created_at_str = session.created_at.strftime("%Y-%m-%d %H:%M UTC")
+
+    signatures_section = f"""
+<div style="page-break-before:always;font-family:sans-serif;font-size:11px;margin-top:40px">
+  <h2 style="color:#032147;border-bottom:2px solid #209dd7;padding-bottom:6px">Signature Certificate</h2>
+  <p>This document was electronically signed on {created_at_str}.</p>
+  <table style="width:100%;border-collapse:collapse;font-size:10px">
+    <thead>
+      <tr style="background:#032147;color:white">
+        <th style="border:1px solid #ddd;padding:8px;text-align:left">Name</th>
+        <th style="border:1px solid #ddd;padding:8px;text-align:left">Title</th>
+        <th style="border:1px solid #ddd;padding:8px;text-align:left">Email</th>
+        <th style="border:1px solid #ddd;padding:8px;text-align:left">Role</th>
+        <th style="border:1px solid #ddd;padding:8px;text-align:left">Signed At</th>
+        <th style="border:1px solid #ddd;padding:8px;text-align:left">IP Address</th>
+      </tr>
+    </thead>
+    <tbody>{sig_rows}</tbody>
+  </table>
+  <p style="margin-top:16px;color:#888;font-size:9px">
+    Electronic signatures are legally binding under UETA and ESIGN Act.
+    This certificate serves as an audit trail for the signing process.
+  </p>
+</div>
+"""
+
+    return base_html.replace("</body>", signatures_section + "</body>")
+
+
+def generate_signed_pdf(data: dict, session: object, requests: list) -> bytes:
+    """Generate a PDF with a signature certificate appended."""
+    html_string = render_signed_document_html(data, session, requests)
+    return HTML(string=html_string).write_pdf()
+
+
 # ── Backward-compatible alias used by existing tests ────────────────────────────
 def render_nda_html(data: dict) -> str:
     """Render NDA HTML — wraps render_document_html for backward compatibility."""

@@ -123,5 +123,19 @@ scripts/stop-mac.sh
 - `frontend/src/app/page.tsx`: catalog home page with grid of all 12 document cards
 - 53 backend tests (100% pass rate); Next.js static build generates all 12 document routes
 
+### Completed (PL-8)
+- **7 new features** added across backend and frontend
+- **Clause Tooltips**: AI explains any document section in plain English; `POST /api/explain-clause` → `backend/services/explain_service.py`; `ClauseTooltip` component in `DocumentPreview.tsx`
+- **AI Document Review**: completeness score, risk flags, suggestions; `POST /api/review-document` → `backend/services/review_service.py`; `ReviewPanel.tsx` + "Review" tab in `DocumentEditor.tsx`
+- **Saved Party Profiles**: CRUD for reusable company/contact info; `GET/POST/PUT/DELETE /api/parties`; `PartyLoader.tsx` in `DocumentForm.tsx`
+- **DOCX Export**: python-docx cover page + markdown standard terms; `POST /api/generate-docx`; `DownloadDocxButton.tsx` in header
+- **Version History**: auto-saved on every PDF download; `GET /api/documents/{id}/versions`; `frontend/src/app/history/[doc_id]/versions/`; restore via sessionStorage
+- **Share Links**: 30-day read-only public link; `POST /api/documents/{id}/share`; `frontend/src/app/share/[token]/`
+- **E-Signature**: type-to-sign with email invites; `POST /api/documents/{id}/signing-sessions`; `frontend/src/app/sign/[token]/`; `SigningModal.tsx`
+- `backend/models/`: 4 new models — `DocumentVersion`, `DocumentShare`, `SigningSession`, `SigningRequest`, `Party`
+- SMTP email service with graceful no-SMTP fallback (`backend/services/email_service.py`)
+- SQLite foreign-key enforcement via `PRAGMA foreign_keys=ON` event listener (`database.py`)
+- 115 backend tests (100% pass rate); Next.js static export includes 3 new dynamic routes
+
 ### GitHub
 - Remote is `mmfofana/prelegal-1` (origin). Do not push to `ed-donner/prelegal`.

@@ -18,6 +18,12 @@ from routers import pdf
 from routers import auth as auth_router
 from routers import chat as chat_router
 from routers import documents as documents_router
+from routers import docx as docx_router
+from routers import explain as explain_router
+from routers import parties as parties_router
+from routers import review as review_router
+from routers import share as share_router
+from routers import signing as signing_router
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -46,6 +52,12 @@ app.include_router(pdf.router, prefix="/api")
 app.include_router(auth_router.router, prefix="/api/auth")
 app.include_router(chat_router.router, prefix="/api")
 app.include_router(documents_router.router, prefix="/api")
+app.include_router(docx_router.router, prefix="/api")
+app.include_router(explain_router.router, prefix="/api")
+app.include_router(parties_router.router, prefix="/api")
+app.include_router(review_router.router, prefix="/api")
+app.include_router(share_router.router, prefix="/api")
+app.include_router(signing_router.router, prefix="/api")
 
 
 @app.get("/api/health")

@@ -1,7 +1,69 @@
 "use client";
 
+import { useState } from "react";
+
 import { DocumentFormData } from "@/types/document";
 import { DocumentTypeDef } from "@/lib/document-registry";
+import { ExplainClauseResponse, explainClause } from "@/lib/explain";
+
+// Static descriptions for each section — sent to AI for context
+const SECTION_DESCRIPTIONS: Record<string, string> = {
+  "Cover Page":
+    "The cover page defines the parties, effective date, governing law, jurisdiction, and document-specific terms.",
+  "Standard Terms":
+    "The standard terms are the legal boilerplate that forms the main body of the agreement, including obligations, limitations, termination rights, and dispute resolution.",
+};
+
+interface TooltipState {
+  sectionId: string;
+  loading: boolean;
+  result: ExplainClauseResponse | null;
+  error: string | null;
+}
+
+function ClauseTooltip({
+  state,
+  onClose,
+}: {
+  state: TooltipState;
+  onClose: () => void;
+}) {
+  return (
+    <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-xs font-sans not-italic">
+      <div className="flex justify-between items-start mb-2">
+        <span className="font-semibold text-[#032147]">Plain-English Explanation</span>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 ml-2 text-base leading-none">
+          ×
+        </button>
+      </div>
+      {state.loading && (
+        <div className="flex items-center gap-2 text-gray-500">
+          <div className="w-3 h-3 border border-[#209dd7] border-t-transparent rounded-full animate-spin" />
+          <span>Explaining…</span>
+        </div>
+      )}
+      {state.error && <p className="text-red-600">{state.error}</p>}
+      {state.result && (
+        <>
+          <p className="text-gray-700 mb-2">{state.result.explanation}</p>
+          {state.result.risks.length > 0 && (
+            <div>
+              <p className="font-semibold text-[#032147] mb-1">Risks to consider:</p>
+              <ul className="space-y-0.5">
+                {state.result.risks.map((r, i) => (
+                  <li key={i} className="flex gap-1.5 text-amber-800">
+                    <span className="shrink-0">⚠</span>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 function formatDate(iso: string): string {
   if (!iso) return "[Effective Date]";
@@ -37,6 +99,30 @@ interface DocumentPreviewProps {
 
 export function DocumentPreview({ data, docDef }: DocumentPreviewProps) {
   const jurisdictionLabel = docDef.jurisdictionLabel ?? "Jurisdiction";
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+
+  const handleExplain = async (sectionId: string) => {
+    if (tooltip?.sectionId === sectionId && !tooltip.loading) {
+      setTooltip(null);
+      return;
+    }
+    const clauseText =
+      SECTION_DESCRIPTIONS[sectionId] ??
+      `${sectionId} section of a ${docDef.displayName}.`;
+
+    setTooltip({ sectionId, loading: true, result: null, error: null });
+    try {
+      const result = await explainClause(clauseText, docDef.slug);
+      setTooltip({ sectionId, loading: false, result, error: null });
+    } catch (err: unknown) {
+      setTooltip({
+        sectionId,
+        loading: false,
+        result: null,
+        error: err instanceof Error ? err.message : "Failed to explain",
+      });
+    }
+  };
 
   return (
     <div className="font-serif text-[13px] text-gray-800 leading-relaxed space-y-5">
@@ -58,9 +144,21 @@ export function DocumentPreview({ data, docDef }: DocumentPreviewProps) {
 
       {/* Cover Page */}
       <section>
-        <h2 className="text-base font-bold text-[#032147] border-b-2 border-[#209dd7] pb-1 mb-3">
-          Cover Page
-        </h2>
+        <div className="relative">
+          <div className="flex items-center gap-2 border-b-2 border-[#209dd7] pb-1 mb-3">
+            <h2 className="text-base font-bold text-[#032147]">Cover Page</h2>
+            <button
+              onClick={() => handleExplain("Cover Page")}
+              className="text-[#209dd7] hover:text-[#1a85b8] text-xs leading-none font-sans not-italic"
+              title="Explain this section"
+            >
+              ⓘ
+            </button>
+          </div>
+          {tooltip?.sectionId === "Cover Page" && (
+            <ClauseTooltip state={tooltip} onClose={() => setTooltip(null)} />
+          )}
+        </div>
 
         <div className="space-y-3">
           {/* Document-specific extra fields */}
@@ -178,6 +276,27 @@ export function DocumentPreview({ data, docDef }: DocumentPreviewProps) {
           </tbody>
         </table>
       </section>
+
+      {/* Standard Terms section indicator */}
+      <div className="relative">
+        <div className="flex items-center gap-2 border-b border-gray-200 pb-1 mb-2">
+          <h2 className="text-sm font-bold text-[#032147]">Standard Terms</h2>
+          <button
+            onClick={() => handleExplain("Standard Terms")}
+            className="text-[#209dd7] hover:text-[#1a85b8] text-xs leading-none font-sans not-italic"
+            title="Explain this section"
+          >
+            ⓘ
+          </button>
+        </div>
+        {tooltip?.sectionId === "Standard Terms" && (
+          <ClauseTooltip state={tooltip} onClose={() => setTooltip(null)} />
+        )}
+      </div>
+
+      <p className="text-[10px] text-[#888888] italic">
+        The full standard terms are included in the downloaded PDF.
+      </p>
 
       <p className="text-[10px] text-[#888888] border-t border-gray-200 pt-2">
         Common Paper {docDef.displayName} · Free to use under CC BY 4.0

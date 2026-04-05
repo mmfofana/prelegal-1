@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { DocumentFormData, Party } from "@/types/document";
 import { DocumentTypeDef, FieldDef } from "@/lib/document-registry";
+import { SavedPartyProfile, listParties } from "@/lib/parties";
+import { PartyLoader } from "@/components/PartyLoader";
 
 interface DocumentFormProps {
   data: DocumentFormData;
@@ -198,6 +202,16 @@ function ExtraField({
 }
 
 export function DocumentForm({ data, docDef, onChange }: DocumentFormProps) {
+  const [profiles, setProfiles] = useState<SavedPartyProfile[]>([]);
+  const [profilesLoading, setProfilesLoading] = useState(true);
+
+  useEffect(() => {
+    listParties()
+      .then(setProfiles)
+      .catch(() => {/* silently ignore - user may not be signed in */})
+      .finally(() => setProfilesLoading(false));
+  }, []);
+
   const updateCommon = <K extends keyof DocumentFormData>(
     field: K,
     value: DocumentFormData[K],
@@ -282,10 +296,24 @@ export function DocumentForm({ data, docDef, onChange }: DocumentFormProps) {
       {/* Parties */}
       <div>
         <h3 className="text-sm font-semibold text-[#032147] mb-3">Parties</h3>
+        <PartyLoader
+          profiles={profiles}
+          profilesLoading={profilesLoading}
+          currentParty={data.party1}
+          onLoad={(party) => updateCommon("party1", party)}
+          onSaved={(profile) => setProfiles((prev) => [...prev, profile])}
+        />
         <PartyFields
           label={docDef.party1Label}
           party={data.party1}
           onChange={(party) => updateCommon("party1", party)}
+        />
+        <PartyLoader
+          profiles={profiles}
+          profilesLoading={profilesLoading}
+          currentParty={data.party2}
+          onLoad={(party) => updateCommon("party2", party)}
+          onSaved={(profile) => setProfiles((prev) => [...prev, profile])}
         />
         <PartyFields
           label={docDef.party2Label}

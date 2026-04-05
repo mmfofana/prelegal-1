@@ -7,13 +7,15 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { DocumentForm } from "@/components/DocumentForm";
 import { DocumentPreview } from "@/components/DocumentPreview";
 import { DownloadButton } from "@/components/DownloadButton";
+import { DownloadDocxButton } from "@/components/DownloadDocxButton";
 import { Header } from "@/components/Header";
+import { ReviewPanel } from "@/components/ReviewPanel";
 import { CATALOG_ORDER, DOCUMENT_REGISTRY } from "@/lib/document-registry";
 import { useAuth } from "@/lib/auth";
 import { fetchDocument } from "@/lib/documents";
 import { DocumentFormData, DOCUMENT_DEFAULTS, defaultDocumentFormData } from "@/types/document";
 
-type ActiveTab = "chat" | "form";
+type ActiveTab = "chat" | "form" | "review";
 
 export function DocumentEditor({ slug }: { slug: string }) {
   const { user, loading: authLoading } = useAuth();
@@ -99,7 +101,12 @@ export function DocumentEditor({ slug }: { slug: string }) {
       <Header
         user={user}
         centerSlot={docTypeDropdown}
-        rightSlot={<DownloadButton data={formData} docDef={docDef} />}
+        rightSlot={
+          <div className="flex gap-2">
+            <DownloadDocxButton data={formData} docDef={docDef} />
+            <DownloadButton data={formData} docDef={docDef} />
+          </div>
+        }
       />
 
       {/* Two-column layout */}
@@ -108,7 +115,7 @@ export function DocumentEditor({ slug }: { slug: string }) {
         <aside className="w-[420px] min-w-[340px] bg-white border-r border-gray-200 flex flex-col overflow-hidden">
           {/* Tab toggle */}
           <div className="flex border-b border-gray-200 shrink-0">
-            {(["chat", "form"] as const).map((tab) => (
+            {(["chat", "form", "review"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -127,6 +134,10 @@ export function DocumentEditor({ slug }: { slug: string }) {
           {activeTab === "chat" ? (
             <div className="flex-1 min-h-0 flex flex-col p-6">
               <ChatPanel data={formData} docDef={docDef} onChange={setFormData} />
+            </div>
+          ) : activeTab === "review" ? (
+            <div className="flex-1 overflow-y-auto p-6">
+              <ReviewPanel data={formData} docDef={docDef} />
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto p-6">

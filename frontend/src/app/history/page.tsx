@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Header } from "@/components/Header";
+import { SigningModal } from "@/components/SigningModal";
 import { DOCUMENT_REGISTRY } from "@/lib/document-registry";
 import { useAuth } from "@/lib/auth";
 import { listDocuments, deleteDocument, SavedDocumentSummary } from "@/lib/documents";
+import { createShareLink } from "@/lib/share";
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -37,6 +39,10 @@ function DocumentCard({ doc, onDelete, onDeleteError }: DocumentCardProps) {
   const router = useRouter();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showSigningModal, setShowSigningModal] = useState(false);
+  const [signingSuccess, setSigningSuccess] = useState(false);
 
   const docDef = DOCUMENT_REGISTRY[doc.document_type];
   const displayName = docDef?.displayName ?? doc.document_type;
@@ -57,37 +63,88 @@ function DocumentCard({ doc, onDelete, onDeleteError }: DocumentCardProps) {
     }
   }
 
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-4">
-      <div>
-        <span className="inline-block text-xs bg-[#209dd7]/10 text-[#209dd7] font-medium rounded-full px-2.5 py-0.5 mb-2">
-          {displayName}
-        </span>
-        <h3 className="font-semibold text-[#032147] leading-snug mb-1">{doc.title}</h3>
-        <p className="text-xs text-gray-400">Saved {formatDate(doc.created_at)}</p>
-      </div>
+  async function handleShare() {
+    setSharing(true);
+    try {
+      const { url } = await createShareLink(doc.id);
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      onDeleteError("Failed to create share link");
+    } finally {
+      setSharing(false);
+    }
+  }
 
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => router.push(`/document/${doc.document_type}?from=${doc.id}`)}
-          className="flex-1 bg-[#209dd7] hover:bg-[#1a85b8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          Continue editing
-        </button>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          onBlur={() => setConfirmDelete(false)}
-          className={`text-sm px-3 py-2 rounded-lg transition-colors ${
-            confirmDelete
-              ? "bg-red-100 text-red-700 hover:bg-red-200"
-              : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-          } disabled:opacity-50`}
-        >
-          {confirmDelete ? "Confirm?" : "Delete"}
-        </button>
+  return (
+    <>
+      {showSigningModal && (
+        <SigningModal
+          docId={doc.id}
+          docTitle={doc.title}
+          onClose={() => setShowSigningModal(false)}
+          onSuccess={() => { setShowSigningModal(false); setSigningSuccess(true); }}
+        />
+      )}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-4">
+        <div>
+          <span className="inline-block text-xs bg-[#209dd7]/10 text-[#209dd7] font-medium rounded-full px-2.5 py-0.5 mb-2">
+            {displayName}
+          </span>
+          <h3 className="font-semibold text-[#032147] leading-snug mb-1">{doc.title}</h3>
+          <p className="text-xs text-gray-400">Saved {formatDate(doc.created_at)}</p>
+          {signingSuccess && (
+            <p className="text-xs text-green-600 mt-1">Signing invites sent ✓</p>
+          )}
+          {copied && (
+            <p className="text-xs text-[#209dd7] mt-1">Link copied to clipboard ✓</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <button
+            onClick={() => router.push(`/document/${doc.document_type}?from=${doc.id}`)}
+            className="w-full bg-[#209dd7] hover:bg-[#1a85b8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Continue editing
+          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push(`/history/${doc.id}/versions`)}
+              className="flex-1 border border-gray-200 text-gray-500 hover:text-[#032147] hover:border-gray-300 text-xs px-2 py-1.5 rounded-lg transition-colors"
+            >
+              Versions
+            </button>
+            <button
+              onClick={handleShare}
+              disabled={sharing}
+              className="flex-1 border border-gray-200 text-gray-500 hover:text-[#209dd7] hover:border-[#209dd7] text-xs px-2 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {sharing ? "…" : "Share"}
+            </button>
+            <button
+              onClick={() => setShowSigningModal(true)}
+              className="flex-1 border border-gray-200 text-gray-500 hover:text-[#753991] hover:border-[#753991] text-xs px-2 py-1.5 rounded-lg transition-colors"
+            >
+              Sign
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              onBlur={() => setConfirmDelete(false)}
+              className={`text-xs px-2 py-1.5 rounded-lg transition-colors ${
+                confirmDelete
+                  ? "bg-red-100 text-red-700 hover:bg-red-200"
+                  : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+              } disabled:opacity-50`}
+            >
+              {confirmDelete ? "Confirm?" : "Delete"}
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
