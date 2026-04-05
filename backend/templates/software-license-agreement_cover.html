@@ -1,0 +1,60 @@
+{% from '_cover_base.html' import shared_css, signature_table, standard_terms_section %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">{{ shared_css() }}</head>
+<body>
+
+<h1>Software License Agreement</h1>
+<p class="subtitle">
+  This Software License Agreement consists of: (1) this Cover Page and (2) the Common Paper
+  Software License Agreement Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<div class="field-row">
+  <div class="field-col">
+    <h3>Licensor</h3>
+    <div class="field-value">{{ party1.company }}</div>
+  </div>
+  <div class="field-col">
+    <h3>Licensee</h3>
+    <div class="field-value">{{ party2.company }}</div>
+  </div>
+</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>Software</h3>
+<div class="field-value">{{ extra.software_name }}</div>
+
+<h3>License Type</h3>
+<div class="field-value">{{ extra.license_type }}</div>
+
+<h3>Authorized Users</h3>
+<div class="field-value">{{ extra.number_of_seats }}</div>
+
+<h3>License Fee</h3>
+<div class="field-value">{{ extra.license_fee }}</div>
+
+<h3>Maintenance &amp; Support</h3>
+<div class="field-value">{{ extra.maintenance_and_support }}</div>
+
+<h3>Delivery Method</h3>
+<div class="field-value">{{ extra.delivery_method }}</div>
+
+<h3>Governing Law &amp; Jurisdiction</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">Jurisdiction</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<p>By signing this Cover Page, each party agrees to the terms of this Agreement as of the Effective Date.</p>
+{{ signature_table(party1, party2, doc_def.party1_label, doc_def.party2_label) }}
+
+<p class="attribution">Common Paper Software License Agreement free to use under CC BY 4.0.</p>
+
+{{ standard_terms_section(terms_html, "Software License Agreement") }}
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% from '_cover_base.html' import shared_css, signature_table, standard_terms_section %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">{{ shared_css() }}</head>
+<body>
+
+<h1>Data Processing Agreement</h1>
+<p class="subtitle">
+  This Data Processing Agreement consists of: (1) this Cover Page and (2) the Common Paper
+  Data Processing Agreement Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<div class="field-row">
+  <div class="field-col">
+    <h3>Controller</h3>
+    <div class="field-value">{{ party1.company }}</div>
+  </div>
+  <div class="field-col">
+    <h3>Processor</h3>
+    <div class="field-value">{{ party2.company }}</div>
+  </div>
+</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>Service Description</h3>
+<div class="field-value">{{ extra.service_description }}</div>
+
+<h3>Types of Personal Data</h3>
+<div class="field-value">{{ extra.data_types }}</div>
+
+<h3>Data Subjects</h3>
+<div class="field-value">{{ extra.data_subjects }}</div>
+
+<h3>Processing Purposes</h3>
+<div class="field-value">{{ extra.processing_purposes }}</div>
+
+<h3>Retention Period</h3>
+<div class="field-value">{{ extra.retention_period }}</div>
+
+<h3>Security Measures</h3>
+<div class="field-value">{{ extra.security_measures }}</div>
+
+{% if extra.sub_processors %}
+<h3>Approved Sub-Processors</h3>
+<div class="field-value">{{ extra.sub_processors }}</div>
+{% endif %}
+
+<h3>Governing Law &amp; Jurisdiction</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">Jurisdiction</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<p>By signing this Cover Page, each party agrees to the terms of this Agreement as of the Effective Date.</p>
+{{ signature_table(party1, party2, doc_def.party1_label, doc_def.party2_label) }}
+
+<p class="attribution">Common Paper Data Processing Agreement free to use under CC BY 4.0.</p>
+
+{{ standard_terms_section(terms_html, "Data Processing Agreement") }}
+</body>
+</html>

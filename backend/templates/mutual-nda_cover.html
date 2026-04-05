@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2.5cm;
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #888;
+    }
+  }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; color: #333; line-height: 1.5; }
+  h1 { color: #032147; font-size: 18pt; margin-bottom: 4pt; }
+  h2 { color: #032147; font-size: 13pt; margin-top: 20pt; margin-bottom: 8pt; border-bottom: 2px solid #209dd7; padding-bottom: 4pt; }
+  h3 { color: #209dd7; font-size: 10.5pt; margin-top: 14pt; margin-bottom: 2pt; }
+  .subtitle { color: #888; font-size: 9.5pt; margin-bottom: 16pt; }
+  .field-label { font-size: 8.5pt; color: #888888; margin-bottom: 2pt; }
+  .field-value { color: #032147; padding: 5pt 0; border-bottom: 1px solid #e0e0e0; margin-bottom: 10pt; min-height: 14pt; }
+  .option-row { display: flex; align-items: baseline; gap: 6pt; margin: 3pt 0; color: #333; }
+  .checkbox { font-size: 12pt; color: #209dd7; flex-shrink: 0; }
+  .checkbox.unchecked { color: #ccc; }
+  .signature-table { width: 100%; border-collapse: collapse; margin-top: 12pt; font-size: 10pt; }
+  .signature-table th { background-color: #032147; color: white; padding: 7pt 9pt; text-align: center; font-weight: bold; }
+  .signature-table th:first-child { text-align: left; width: 22%; }
+  .signature-table td { border: 1px solid #ccc; padding: 7pt 9pt; vertical-align: top; }
+  .signature-table td:first-child { font-weight: bold; color: #555; background-color: #f8f8f8; width: 22%; }
+  .signature-row td { height: 36pt; }
+  .page-break { page-break-after: always; }
+  .standard-terms p { text-align: justify; margin-bottom: 10pt; }
+  .term { margin-bottom: 12pt; }
+  .coverpage-ref { font-weight: bold; text-decoration: underline; color: #032147; }
+  .attribution { font-size: 8.5pt; color: #888; margin-top: 20pt; border-top: 1px solid #e0e0e0; padding-top: 8pt; }
+  /* Rendered markdown styles */
+  .standard-terms h1 { font-size: 14pt; }
+  .standard-terms h2 { font-size: 11pt; margin-top: 14pt; }
+  .standard-terms h3 { font-size: 10.5pt; }
+  .standard-terms ol, .standard-terms ul { margin-bottom: 8pt; }
+  .standard-terms li { margin-bottom: 4pt; }
+</style>
+</head>
+<body>
+
+<h1>Mutual Non-Disclosure Agreement</h1>
+<p class="subtitle">
+  This Mutual Non-Disclosure Agreement (the "MNDA") consists of: (1) this Cover Page and
+  (2) the Common Paper Mutual NDA Standard Terms Version 1.0, identical to those posted at
+  commonpaper.com/standards/mutual-nda/1.0. Any modifications to the Standard Terms should
+  be made on the Cover Page, which will control over conflicts with the Standard Terms.
+</p>
+
+<h2>Cover Page</h2>
+
+<h3>Purpose</h3>
+<div class="field-label">How Confidential Information may be used</div>
+<div class="field-value">{{ extra.purpose }}</div>
+
+<h3>Effective Date</h3>
+<div class="field-value">{{ effective_date_formatted }}</div>
+
+<h3>MNDA Term</h3>
+<div class="field-label">The length of this MNDA</div>
+{% if extra.mnda_term_type == 'expires' %}
+<div class="option-row"><span class="checkbox">☑</span> Expires {{ extra.mnda_term_years }} year(s) from Effective Date.</div>
+<div class="option-row"><span class="checkbox unchecked">☐</span> Continues until terminated in accordance with the terms of the MNDA.</div>
+{% else %}
+<div class="option-row"><span class="checkbox unchecked">☐</span> Expires [N] year(s) from Effective Date.</div>
+<div class="option-row"><span class="checkbox">☑</span> Continues until terminated in accordance with the terms of the MNDA.</div>
+{% endif %}
+
+<h3>Term of Confidentiality</h3>
+<div class="field-label">How long Confidential Information is protected</div>
+{% if extra.term_of_confidentiality_type == 'years' %}
+<div class="option-row"><span class="checkbox">☑</span> {{ extra.term_of_confidentiality_years }} year(s) from Effective Date, but in the case of trade secrets until Confidential Information is no longer considered a trade secret under applicable laws.</div>
+<div class="option-row"><span class="checkbox unchecked">☐</span> In perpetuity.</div>
+{% else %}
+<div class="option-row"><span class="checkbox unchecked">☐</span> [N] year(s) from Effective Date, but in the case of trade secrets until Confidential Information is no longer considered a trade secret under applicable laws.</div>
+<div class="option-row"><span class="checkbox">☑</span> In perpetuity.</div>
+{% endif %}
+
+<h3>Governing Law &amp; Jurisdiction</h3>
+<div class="field-label">Governing Law</div>
+<div class="field-value">{{ governing_law }}</div>
+<div class="field-label">Jurisdiction</div>
+<div class="field-value">{{ jurisdiction }}</div>
+
+<h3>MNDA Modifications</h3>
+<div class="field-value">{{ extra.modifications if extra.modifications else 'None' }}</div>
+
+<p>By signing this Cover Page, each party agrees to enter into this MNDA as of the Effective Date.</p>
+
+<table class="signature-table">
+  <thead>
+    <tr><th></th><th>PARTY 1</th><th>PARTY 2</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Company</td><td>{{ party1.company }}</td><td>{{ party2.company }}</td></tr>
+    <tr><td>Print Name</td><td>{{ party1.name }}</td><td>{{ party2.name }}</td></tr>
+    <tr><td>Title</td><td>{{ party1.title }}</td><td>{{ party2.title }}</td></tr>
+    <tr><td>Notice Address</td><td>{{ party1.address }}</td><td>{{ party2.address }}</td></tr>
+    <tr class="signature-row"><td>Signature</td><td></td><td></td></tr>
+    <tr><td>Date</td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<p class="attribution">
+  Common Paper Mutual Non-Disclosure Agreement (Version 1.0) free to use under CC BY 4.0.
+</p>
+
+<div class="page-break"></div>
+
+<h2>Standard Terms</h2>
+<div class="standard-terms">
+{{ terms_html | safe }}
+</div>
+
+<p class="attribution">
+  Common Paper Mutual Non-Disclosure Agreement
+  Version 1.0 free to use under CC BY 4.0.
+</p>
+
+</body>
+</html>
